@@ -268,18 +268,38 @@ function loadWasm(){
   document.body.appendChild(s);
 }
 
+// Full Nintendo Switch 2 BLE controller support
+let bleManager = null;
+let controllerState = null;
+
 async function connectCtrl(){
   if(!navigator.bluetooth){log('Web Bluetooth not available');return}
-  try{
-    const d=await navigator.bluetooth.requestDevice({
-      filters:[{manufacturerData:[{companyIdentifier:0x0553}]}],
-      optionalServices:['00c5af5d-1964-4e30-8f51-1956f96bd280','ab7de9be-89fe-49ad-828f-118f09df7fd0']
-    });
-    log('Connected: '+(d.name||'Controller'));
-    const b=document.getElementById('ctrlBtn');
-    b.textContent=d.name||'Connected';
-    b.classList.add('pill-ok');
-  }catch(e){if(e.name!=='NotFoundError')log('BT: '+e.message)}
+  if(!bleManager){
+    bleManager = new BLEManager();
+    bleManager.onLog = function(msg){ log(msg); };
+    bleManager.onStateChange = function(state){
+      const b=document.getElementById('ctrlBtn');
+      if(state==='connected'){
+        b.textContent='Connected';
+        b.classList.add('pill-ok');
+      } else if(state==='scanning'||state==='connecting'||state==='pairing'){
+        b.textContent=state.charAt(0).toUpperCase()+state.slice(1)+'...';
+      }
+    };
+    bleManager.onControllerUpdate = function(ctrl){
+      controllerState = ctrl.state;
+      // Map controller input to Dolphin's input system
+      // The state has: buttons, calLeftX, calLeftY, calRightX, calRightY,
+      // calTriggerL, calTriggerR, gyroX/Y/Z, accelX/Y/Z
+      // TODO: Wire into Dolphin's GCPad input via exported C functions
+    };
+    bleManager.onControllerAdded = function(ctrl){
+      log('Controller ready: ' + ctrl.name + ' (Player ' + ctrl.playerNumber + ')');
+      document.getElementById('ctrlBtn').textContent = ctrl.name;
+      document.getElementById('ctrlBtn').classList.add('pill-ok');
+    };
+  }
+  await bleManager.scan();
 }
 
 var Module={
@@ -304,5 +324,7 @@ var Module={
   arguments:[]
 };
 </script>
+<script src="packet-parser.js"></script>
+<script src="ble-manager.js"></script>
 </body>
 </html>
