@@ -288,10 +288,22 @@ async function connectCtrl(){
     };
     bleManager.onControllerUpdate = function(ctrl){
       controllerState = ctrl.state;
-      // Map controller input to Dolphin's input system
-      // The state has: buttons, calLeftX, calLeftY, calRightX, calRightY,
-      // calTriggerL, calTriggerR, gyroX/Y/Z, accelX/Y/Z
-      // TODO: Wire into Dolphin's GCPad input via exported C functions
+      if(!controllerState || typeof Module._dolphin_set_controller_state !== 'function') return;
+      var s = controllerState;
+      var port = (ctrl.playerNumber || 1) - 1;
+      // Push input state to Dolphin
+      // Sticks: calLeftX/Y and calRightX/Y are -32767 to 32767
+      // Triggers: calTriggerL/R are 0-255
+      Module._dolphin_set_controller_state(
+        port,
+        s.buttons >>> 0,
+        s.calLeftX || 0,
+        s.calLeftY || 0,
+        s.calRightX || 0,
+        s.calRightY || 0,
+        s.calTriggerL || 0,
+        s.calTriggerR || 0
+      );
     };
     bleManager.onControllerAdded = function(ctrl){
       log('Controller ready: ' + ctrl.name + ' (Player ' + ctrl.playerNumber + ')');
