@@ -4,444 +4,304 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Dolphin for Web</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐬</text></svg>">
 <style>
 :root {
   --bg: #000000;
-  --surface: #111113;
-  --surface2: #1a1a1e;
-  --border: rgba(255,255,255,0.07);
-  --text: #f5f5f7;
-  --dim: rgba(245,245,247,0.55);
-  --muted: rgba(245,245,247,0.25);
-  --accent: #5e5ce6;
-  --accent2: #bf5af2;
-  --green: #30d158;
-  --orange: #ff9f0a;
-  --red: #ff453a;
-  --blue: #0a84ff;
-  --radius: 14px;
-  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
-  --mono: 'SF Mono', Menlo, monospace;
-  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --s1: #0c0c0f;
+  --s2: #151518;
+  --s3: #1c1c20;
+  --border: rgba(255,255,255,0.06);
+  --text: #eeeef0;
+  --dim: rgba(238,238,240,0.5);
+  --muted: rgba(238,238,240,0.22);
+  --ghost: rgba(238,238,240,0.08);
+  --accent: #635bff;
+  --accent-soft: rgba(99,91,255,0.12);
+  --accent-glow: rgba(99,91,255,0.06);
+  --green: #3ecf8e;
+  --red: #f75b5b;
+  --blue: #5b9cf7;
+  --yellow: #f7c948;
+  --r: 12px;
+  --f: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
 }
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-html, body { height:100%; overflow:hidden; -webkit-font-smoothing:antialiased; }
-body { font-family:var(--font); background:var(--bg); color:var(--text); }
-::selection { background:rgba(94,92,230,0.3); }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;-webkit-font-smoothing:antialiased}
+body{font-family:var(--f);background:var(--bg);color:var(--text)}
+::selection{background:rgba(99,91,255,0.25)}
+button{font-family:var(--f);cursor:pointer}
+#app{display:flex;flex-direction:column;height:100vh}
 
-#app { display:flex; flex-direction:column; height:100vh; }
+/* Nav */
+.nav{display:flex;justify-content:space-between;align-items:center;height:48px;padding:0 20px;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0;z-index:50}
+.nav-left{display:flex;align-items:center;gap:10px}
+.nav-mark{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,var(--accent),#8b5cf6);display:flex;align-items:center;justify-content:center}
+.nav-mark svg{width:14px;height:14px;fill:#fff}
+.nav-name{font-size:14px;font-weight:700;letter-spacing:-0.3px}
+.nav-right{display:flex;align-items:center;gap:6px}
+.pill{font-size:11px;font-weight:600;padding:5px 14px;border-radius:100px;border:none;transition:all 0.15s}
+.pill-ghost{background:var(--ghost);color:var(--dim);border:1px solid var(--border)}
+.pill-ghost:hover{background:rgba(255,255,255,0.1);color:var(--text)}
+.pill-accent{background:var(--accent);color:#fff}
+.pill-accent:hover{filter:brightness(1.12);transform:scale(1.02)}
+.pill-ok{color:var(--green);border-color:rgba(62,207,142,0.25)}
+.nav-fps{font-size:11px;font-weight:700;font-family:var(--mono);color:var(--green);min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
 
-/* ---- Navbar ---- */
-.nav {
-  display:flex; justify-content:space-between; align-items:center;
-  padding:0 16px; height:44px; background:rgba(0,0,0,0.8);
-  border-bottom:0.5px solid var(--border); flex-shrink:0; z-index:50;
-}
-.nav-brand { display:flex; align-items:center; gap:8px; }
-.nav-logo { font-size:20px; }
-.nav-title { font-size:15px; font-weight:700; letter-spacing:-0.3px; }
-.nav-actions { display:flex; align-items:center; gap:8px; }
-.nav-btn {
-  font-family:var(--font); font-size:12px; font-weight:600;
-  padding:5px 14px; border-radius:100px; cursor:pointer;
-  border:none; transition:all 0.15s var(--ease);
-}
-.nav-btn-primary {
-  background:var(--accent); color:#fff;
-}
-.nav-btn-primary:hover { background:#7371ee; transform:scale(1.02); }
-.nav-btn-ghost {
-  background:rgba(255,255,255,0.06); color:var(--dim);
-  border:0.5px solid var(--border);
-}
-.nav-btn-ghost:hover { background:rgba(255,255,255,0.1); color:var(--text); }
-.nav-btn-connected { color:var(--green); border-color:rgba(48,209,88,0.3); }
-.nav-fps {
-  font-size:11px; font-weight:600; font-family:var(--mono);
-  color:var(--green); font-variant-numeric:tabular-nums;
-  min-width:50px; text-align:right;
-}
+/* Canvas */
+.stage{flex:1;position:relative;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+#canvas{max-width:100%;max-height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
 
-/* ---- Canvas ---- */
-.canvas-wrap {
-  flex:1; display:flex; align-items:center; justify-content:center;
-  position:relative; overflow:hidden; background:#000;
-}
-#canvas {
-  max-width:100%; max-height:100%;
-  image-rendering:pixelated; image-rendering:crisp-edges;
-}
+/* Splash */
+.splash{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:var(--bg);opacity:1;transition:opacity 0.4s}
+.splash.out{opacity:0;pointer-events:none}
+.splash-bg{position:absolute;inset:0;overflow:hidden}
+.splash-orb{position:absolute;border-radius:50%;filter:blur(80px);animation:orbFloat 8s ease-in-out infinite}
+.splash-orb.a{width:400px;height:400px;background:rgba(99,91,255,0.08);top:20%;left:30%;animation-delay:0s}
+.splash-orb.b{width:300px;height:300px;background:rgba(139,92,246,0.06);bottom:20%;right:20%;animation-delay:-3s}
+.splash-orb.c{width:200px;height:200px;background:rgba(91,156,247,0.05);top:60%;left:10%;animation-delay:-5s}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(30px,-20px) scale(1.05)}50%{transform:translate(-20px,30px) scale(0.95)}75%{transform:translate(20px,10px) scale(1.02)}}
 
-/* ---- Splash ---- */
-.splash {
-  position:absolute; inset:0; z-index:10;
-  display:flex; align-items:center; justify-content:center;
-  background:var(--bg);
-  animation:fadeIn 0.4s var(--ease);
-}
-.splash.hidden { display:none; }
-.splash-inner {
-  display:flex; flex-direction:column; align-items:center;
-  max-width:400px; width:100%; padding:0 24px;
-}
-.splash-glow {
-  width:200px; height:200px; border-radius:50%;
-  background:radial-gradient(circle, rgba(94,92,230,0.15) 0%, transparent 70%);
-  position:absolute; top:50%; left:50%; transform:translate(-50%, -65%);
-  animation:breathe 4s ease-in-out infinite;
-}
-.splash-emoji { font-size:56px; margin-bottom:20px; animation:float 3s ease-in-out infinite; }
-.splash-h1 { font-size:32px; font-weight:800; letter-spacing:-1.5px; margin-bottom:6px; }
-.splash-h1 span { background:linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.splash-sub { font-size:14px; color:var(--muted); text-align:center; line-height:1.5; margin-bottom:36px; }
+.splash-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;max-width:420px;width:100%;padding:0 24px;animation:contentIn 0.6s cubic-bezier(0.16,1,0.3,1) both}
+@keyframes contentIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.splash-icon{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#8b5cf6);display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 8px 32px rgba(99,91,255,0.2)}
+.splash-icon svg{width:28px;height:28px;fill:#fff}
+.splash-h{font-size:36px;font-weight:800;letter-spacing:-1.5px;margin-bottom:8px;text-align:center}
+.splash-p{font-size:14px;color:var(--dim);text-align:center;line-height:1.6;margin-bottom:32px}
 
 /* Drop zone */
-.drop-zone {
-  width:100%; padding:32px; border:2px dashed rgba(255,255,255,0.08);
-  border-radius:var(--radius); display:flex; flex-direction:column;
-  align-items:center; gap:10px; cursor:pointer;
-  transition:all 0.2s var(--ease); position:relative; overflow:hidden;
-}
-.drop-zone::before {
-  content:''; position:absolute; inset:0;
-  background:linear-gradient(135deg, rgba(94,92,230,0.03), rgba(191,90,242,0.03));
-  opacity:0; transition:opacity 0.2s;
-}
-.drop-zone:hover::before, .drop-zone.dragover::before { opacity:1; }
-.drop-zone:hover, .drop-zone.dragover {
-  border-color:var(--accent); transform:scale(1.01);
-}
-.drop-icon { font-size:32px; opacity:0.3; }
-.drop-label { font-size:15px; font-weight:600; color:var(--dim); }
-.drop-hint { font-size:11px; color:var(--muted); }
+.drop{width:100%;padding:36px 24px;border:1.5px dashed rgba(255,255,255,0.08);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;gap:12px;transition:all 0.2s;cursor:pointer;position:relative;overflow:hidden}
+.drop::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(99,91,255,0.04),rgba(139,92,246,0.03));opacity:0;transition:opacity 0.2s}
+.drop:hover::before,.drop.over::before{opacity:1}
+.drop:hover,.drop.over{border-color:var(--accent);transform:translateY(-1px)}
+.drop-icon{width:40px;height:40px;border-radius:10px;background:var(--ghost);display:flex;align-items:center;justify-content:center}
+.drop-icon svg{width:20px;height:20px;stroke:var(--dim);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.drop-title{font-size:15px;font-weight:600;color:var(--text)}
+.drop-hint{font-size:12px;color:var(--muted)}
 
-/* Settings card */
-.settings-card {
-  width:100%; margin-top:20px; background:var(--surface);
-  border:0.5px solid var(--border); border-radius:var(--radius);
-  overflow:hidden;
-}
-.settings-row {
-  display:flex; justify-content:space-between; align-items:center;
-  padding:12px 16px; border-bottom:0.5px solid var(--border);
-}
-.settings-row:last-child { border-bottom:none; }
-.settings-label { font-size:13px; font-weight:500; color:var(--dim); }
-.settings-value {
-  font-family:var(--font); font-size:12px; font-weight:600;
-  color:var(--text); background:var(--surface2);
-  border:0.5px solid var(--border); border-radius:8px;
-  padding:5px 12px; cursor:pointer; appearance:none;
-  -webkit-appearance:none;
-}
-select.settings-value {
-  padding-right:24px;
-  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 8px center;
-}
+/* Settings */
+.opts{width:100%;margin-top:16px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.opt{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--border)}
+.opt:last-child{border-bottom:none}
+.opt-label{font-size:13px;font-weight:500;color:var(--dim)}
+.opt-sel{font-family:var(--f);font-size:12px;font-weight:600;color:var(--text);background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:5px 28px 5px 10px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 8 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23666' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
 
-.splash-footer {
-  display:flex; align-items:center; gap:8px; margin-top:36px;
-  font-size:11px; color:var(--muted); opacity:0.4;
-}
-.splash-footer a { color:inherit; text-decoration:none; }
-.splash-footer a:hover { opacity:0.8; }
+.splash-foot{margin-top:32px;font-size:11px;color:var(--muted);opacity:0.4}
+.splash-foot a{color:inherit;text-decoration:none}
 
-/* ---- On-Screen Controls ---- */
-.osc { display:none; position:absolute; inset:0; z-index:8; pointer-events:none; }
-.osc.active { display:block; }
+/* Loader */
+.loader{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.92);z-index:20}
+.loader.out{display:none}
+.loader-spin{width:28px;height:28px;border:2.5px solid var(--ghost);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin-bottom:14px}
+.loader-msg{font-size:13px;color:var(--dim)}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-.osc-dpad {
-  position:absolute; bottom:24px; left:24px; width:110px; height:110px;
-  pointer-events:auto; touch-action:none;
-}
-.osc-d {
-  position:absolute; width:36px; height:36px; border-radius:8px;
-  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
-  display:flex; align-items:center; justify-content:center;
-  font-size:14px; color:rgba(255,255,255,0.3); touch-action:none;
-  transition:background 0.1s;
-}
-.osc-d:active { background:rgba(255,255,255,0.2); }
-.osc-d.up { top:0; left:37px; } .osc-d.down { bottom:0; left:37px; }
-.osc-d.left { top:37px; left:0; } .osc-d.right { top:37px; right:0; }
+/* On-screen controls */
+.osc{display:none;position:absolute;inset:0;z-index:8;pointer-events:none}
+.osc.on{display:block}
+.osc-pad{position:absolute;bottom:20px;left:20px;width:110px;height:110px;pointer-events:auto;touch-action:none}
+.osc-d{position:absolute;width:34px;height:34px;border-radius:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(255,255,255,0.25);touch-action:none}
+.osc-d:active{background:rgba(255,255,255,0.15)}
+.osc-d.u{top:0;left:38px}.osc-d.d{bottom:0;left:38px}.osc-d.l{top:38px;left:0}.osc-d.r{top:38px;right:0}
+.osc-btns{position:absolute;bottom:20px;right:20px;width:110px;height:110px;pointer-events:auto;touch-action:none}
+.osc-b{position:absolute;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;touch-action:none}
+.osc-b:active{filter:brightness(1.6)}
+.osc-b.a{bottom:0;left:36px;background:rgba(62,207,142,0.1);border:1px solid rgba(62,207,142,0.2);color:rgba(62,207,142,0.5)}
+.osc-b.b{left:0;bottom:36px;background:rgba(247,91,91,0.1);border:1px solid rgba(247,91,91,0.2);color:rgba(247,91,91,0.5)}
+.osc-b.x{right:0;bottom:36px;background:rgba(91,156,247,0.1);border:1px solid rgba(91,156,247,0.2);color:rgba(91,156,247,0.5)}
+.osc-b.y{top:0;left:36px;background:rgba(247,201,72,0.1);border:1px solid rgba(247,201,72,0.2);color:rgba(247,201,72,0.5)}
+.osc-sh{position:absolute;top:6px;left:0;right:0;display:flex;justify-content:space-between;padding:0 14px;pointer-events:auto}
+.osc-sh div{font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:6px 20px;touch-action:none}
+.osc-sh div:active{background:rgba(255,255,255,0.12)}
+.osc-m{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:10px;pointer-events:auto}
+.osc-m div{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:rgba(255,255,255,0.18);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:100px;padding:5px 14px;touch-action:none}
 
-.osc-face {
-  position:absolute; bottom:24px; right:24px; width:110px; height:110px;
-  pointer-events:auto; touch-action:none;
-}
-.osc-f {
-  position:absolute; width:40px; height:40px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:12px; font-weight:700; touch-action:none;
-  transition:background 0.1s;
-}
-.osc-f:active { filter:brightness(1.5); }
-.osc-a { bottom:0; left:35px; background:rgba(48,209,88,0.12); border:1px solid rgba(48,209,88,0.25); color:rgba(48,209,88,0.6); }
-.osc-b { left:0; bottom:35px; background:rgba(255,69,58,0.12); border:1px solid rgba(255,69,58,0.25); color:rgba(255,69,58,0.6); }
-.osc-x { right:0; bottom:35px; background:rgba(10,132,255,0.12); border:1px solid rgba(10,132,255,0.25); color:rgba(10,132,255,0.6); }
-.osc-y { top:0; left:35px; background:rgba(255,214,10,0.12); border:1px solid rgba(255,214,10,0.25); color:rgba(255,214,10,0.6); }
+/* Console */
+.con-t{flex-shrink:0;width:100%;padding:4px;text-align:center;font-size:10px;font-weight:500;color:var(--muted);background:var(--s1);border:none;border-top:1px solid var(--border);cursor:pointer;font-family:var(--f)}
+.con-p{max-height:0;overflow:hidden;background:rgba(0,0,0,0.85);transition:max-height 0.2s;flex-shrink:0}
+.con-p.open{max-height:120px}
+.con-e{padding:6px 10px;max-height:110px;overflow-y:auto;font-family:var(--mono);font-size:10px;line-height:1.5;color:var(--muted);white-space:pre-wrap}
 
-.osc-bumpers {
-  position:absolute; top:8px; left:0; right:0;
-  display:flex; justify-content:space-between; padding:0 16px; pointer-events:auto;
-}
-.osc-bump {
-  font-family:var(--font); font-size:11px; font-weight:700;
-  color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.08); border-radius:8px;
-  padding:8px 24px; touch-action:none;
-}
-.osc-bump:active { background:rgba(255,255,255,0.15); }
-
-.osc-meta {
-  position:absolute; bottom:24px; left:50%; transform:translateX(-50%);
-  display:flex; gap:12px; pointer-events:auto;
-}
-.osc-m {
-  font-family:var(--font); font-size:9px; font-weight:600; text-transform:uppercase;
-  letter-spacing:0.5px; color:rgba(255,255,255,0.2);
-  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);
-  border-radius:100px; padding:6px 14px; touch-action:none;
-}
-
-/* ---- Loading ---- */
-.loader {
-  position:absolute; inset:0; display:flex; flex-direction:column;
-  align-items:center; justify-content:center; z-index:20;
-  background:rgba(0,0,0,0.92);
-}
-.loader.hidden { display:none; }
-.loader-ring {
-  width:36px; height:36px; border:3px solid var(--border);
-  border-top-color:var(--accent); border-radius:50%;
-  animation:spin 0.7s linear infinite; margin-bottom:16px;
-}
-.loader-text { font-size:13px; color:var(--dim); }
-@keyframes spin { to { transform:rotate(360deg); } }
-@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-@keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
-@keyframes breathe { 0%,100% { opacity:0.6; transform:translate(-50%,-65%) scale(1); } 50% { opacity:1; transform:translate(-50%,-65%) scale(1.1); } }
-
-/* ---- Console ---- */
-.con-toggle {
-  flex-shrink:0; width:100%; padding:5px; text-align:center;
-  font-family:var(--font); font-size:10px; color:var(--muted);
-  background:rgba(0,0,0,0.5); border:none; border-top:0.5px solid var(--border);
-  cursor:pointer;
-}
-.con-panel { max-height:0; overflow:hidden; background:rgba(0,0,0,0.85); transition:max-height 0.2s; flex-shrink:0; }
-.con-panel.open { max-height:120px; }
-.con-entries {
-  padding:6px 10px; max-height:110px; overflow-y:auto;
-  font-family:var(--mono); font-size:10px; line-height:1.5; color:var(--muted); white-space:pre-wrap;
-}
-
-/* ---- Responsive ---- */
-@media (max-width:768px) {
-  .osc.active { display:block; }
-  .nav { height:38px; }
-  .nav-title { font-size:13px; }
-  .nav-btn { font-size:11px; padding:4px 10px; }
-}
-@media (min-width:769px) { .osc { display:none !important; } }
+@media(max-width:768px){.osc.on{display:block}.nav{height:40px;padding:0 12px}.nav-name{font-size:12px}.pill{font-size:10px;padding:4px 10px}}
+@media(min-width:769px){.osc{display:none!important}}
 </style>
 </head>
 <body>
 <div id="app">
   <nav class="nav">
-    <div class="nav-brand">
-      <span class="nav-logo">🐬</span>
-      <span class="nav-title">Dolphin for Web</span>
+    <div class="nav-left">
+      <div class="nav-mark"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+      <span class="nav-name">Dolphin for Web</span>
     </div>
-    <div class="nav-actions">
+    <div class="nav-right">
       <span class="nav-fps" id="fps"></span>
-      <button class="nav-btn nav-btn-ghost" id="ctrlBtn" onclick="connectController()">🎮 Controller</button>
-      <button class="nav-btn nav-btn-ghost" onclick="toggleSettings()">⚙</button>
-      <button class="nav-btn nav-btn-primary" onclick="document.getElementById('romFile').click()">Load ROM</button>
-      <input type="file" id="romFile" accept=".iso,.gcm,.rvz,.gcz,.wbfs" style="display:none" onchange="handleROM(this.files[0])">
+      <button class="pill pill-ghost" id="ctrlBtn" onclick="connectCtrl()">Controller</button>
+      <button class="pill pill-accent" onclick="document.getElementById('rf').click()">Load ROM</button>
+      <input type="file" id="rf" accept=".iso,.gcm,.rvz,.gcz,.wbfs" style="display:none" onchange="handleROM(this.files[0])">
     </div>
   </nav>
 
-  <div class="canvas-wrap">
+  <div class="stage">
     <canvas id="canvas" width="640" height="480"></canvas>
 
     <div class="splash" id="splash">
-      <div class="splash-glow"></div>
-      <div class="splash-inner">
-        <div class="splash-emoji">🐬</div>
-        <h1 class="splash-h1">Dolphin <span>for Web</span></h1>
-        <p class="splash-sub">GameCube emulation running entirely in your browser. Upload a ROM to play.</p>
+      <div class="splash-bg">
+        <div class="splash-orb a"></div>
+        <div class="splash-orb b"></div>
+        <div class="splash-orb c"></div>
+      </div>
+      <div class="splash-content">
+        <div class="splash-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+        <h1 class="splash-h">Dolphin for Web</h1>
+        <p class="splash-p">GameCube emulation running entirely in your browser. Upload a compatible ROM to start playing.</p>
 
-        <div class="drop-zone" id="dropZone" onclick="document.getElementById('romFile').click()">
-          <div class="drop-icon">📂</div>
-          <div class="drop-label">Drop a ROM here</div>
-          <div class="drop-hint">.iso .gcm .rvz .gcz supported</div>
+        <div class="drop" id="dz" onclick="document.getElementById('rf').click()">
+          <div class="drop-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+          <div class="drop-title">Select or drop a ROM</div>
+          <div class="drop-hint">.iso .gcm .rvz .gcz .wbfs</div>
         </div>
 
-        <div class="settings-card" id="settingsCard">
-          <div class="settings-row">
-            <span class="settings-label">CPU Backend</span>
-            <select class="settings-value" id="cpuBackend">
+        <div class="opts">
+          <div class="opt">
+            <span class="opt-label">CPU</span>
+            <select class="opt-sel" id="optCpu">
               <option value="5" selected>Cached Interpreter</option>
               <option value="6">WASM JIT (experimental)</option>
-              <option value="0">Interpreter (slow)</option>
+              <option value="0">Interpreter</option>
             </select>
           </div>
-          <div class="settings-row">
-            <span class="settings-label">Video</span>
-            <select class="settings-value" id="videoBackend">
-              <option value="sw" selected>Software Renderer</option>
-              <option value="ogl" disabled>WebGL (coming soon)</option>
+          <div class="opt">
+            <span class="opt-label">Renderer</span>
+            <select class="opt-sel" id="optVideo">
+              <option value="sw" selected>Software</option>
+              <option value="ogl" disabled>WebGL (WIP)</option>
             </select>
           </div>
-          <div class="settings-row">
-            <span class="settings-label">Skip Idle</span>
-            <select class="settings-value" id="skipIdle">
+          <div class="opt">
+            <span class="opt-label">Skip Idle</span>
+            <select class="opt-sel" id="optIdle">
               <option value="1" selected>On</option>
               <option value="0">Off</option>
             </select>
           </div>
         </div>
 
-        <div class="splash-footer">
-          <a href="https://bitaxislabs.com" target="_blank">by Bit-Axis Labs</a>
-        </div>
+        <div class="splash-foot"><a href="https://bitaxislabs.com" target="_blank">Bit-Axis Labs</a></div>
       </div>
     </div>
 
-    <div class="loader hidden" id="loader">
-      <div class="loader-ring"></div>
-      <div class="loader-text" id="loaderText">Loading...</div>
+    <div class="loader out" id="loader">
+      <div class="loader-spin"></div>
+      <div class="loader-msg" id="loaderMsg">Loading...</div>
     </div>
 
     <div class="osc" id="osc">
-      <div class="osc-bumpers">
-        <div class="osc-bump">L</div>
-        <div class="osc-bump">R</div>
+      <div class="osc-sh"><div>L</div><div>R</div></div>
+      <div class="osc-pad">
+        <div class="osc-d u">&#9650;</div>
+        <div class="osc-d d">&#9660;</div>
+        <div class="osc-d l">&#9664;</div>
+        <div class="osc-d r">&#9654;</div>
       </div>
-      <div class="osc-dpad">
-        <div class="osc-d up">▲</div>
-        <div class="osc-d down">▼</div>
-        <div class="osc-d left">◀</div>
-        <div class="osc-d right">▶</div>
+      <div class="osc-btns">
+        <div class="osc-b a">A</div>
+        <div class="osc-b b">B</div>
+        <div class="osc-b x">X</div>
+        <div class="osc-b y">Y</div>
       </div>
-      <div class="osc-face">
-        <div class="osc-f osc-a">A</div>
-        <div class="osc-f osc-b">B</div>
-        <div class="osc-f osc-x">X</div>
-        <div class="osc-f osc-y">Y</div>
-      </div>
-      <div class="osc-meta">
-        <div class="osc-m">START</div>
-        <div class="osc-m">Z</div>
-      </div>
+      <div class="osc-m"><div>START</div><div>Z</div></div>
     </div>
   </div>
 
-  <button class="con-toggle" onclick="toggleCon()">Console</button>
-  <div class="con-panel" id="conPanel">
-    <div class="con-entries" id="conEntries"></div>
-  </div>
+  <button class="con-t" onclick="toggleCon()">Console</button>
+  <div class="con-p" id="cp"><div class="con-e" id="ce"></div></div>
 </div>
 
 <script>
-let conOpen = false;
-function toggleCon() { conOpen = !conOpen; document.getElementById('conPanel').classList.toggle('open', conOpen); }
-function log(m) { const e = document.getElementById('conEntries'); e.textContent += m+'\n'; e.scrollTop = e.scrollHeight; }
+let co=false;
+function toggleCon(){co=!co;document.getElementById('cp').classList.toggle('open',co)}
+function log(m){const e=document.getElementById('ce');e.textContent+=m+'\n';e.scrollTop=e.scrollHeight}
 
-// Drag and drop
-const dz = document.getElementById('dropZone');
-document.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
-document.addEventListener('dragleave', () => dz.classList.remove('dragover'));
-document.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); if(e.dataTransfer.files.length) handleROM(e.dataTransfer.files[0]); });
+const dz=document.getElementById('dz');
+document.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
+document.addEventListener('dragleave',()=>dz.classList.remove('over'));
+document.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files.length)handleROM(e.dataTransfer.files[0])});
 
-function handleROM(file) {
-  if(!file) return;
-  log('Loading: ' + file.name + ' (' + (file.size/1048576).toFixed(1) + 'MB)');
-  document.getElementById('splash').classList.add('hidden');
-  document.getElementById('loader').classList.remove('hidden');
-  document.getElementById('loaderText').textContent = 'Reading ' + file.name + '...';
-
-  const reader = new FileReader();
-  reader.onprogress = e => {
-    if(e.lengthComputable) document.getElementById('loaderText').textContent = 'Reading... ' + Math.round(e.loaded/e.total*100) + '%';
-  };
-  reader.onload = e => {
-    const data = new Uint8Array(e.target.result);
-    log('ROM: ' + data.length + ' bytes');
-    document.getElementById('loaderText').textContent = 'Starting emulator...';
-
-    // Write ROM to Emscripten VFS
-    if(typeof FS !== 'undefined') {
-      try { FS.mkdir('/rom'); } catch(e) {}
-      FS.writeFile('/rom/game.' + file.name.split('.').pop(), data);
+function handleROM(file){
+  if(!file)return;
+  log('Loading: '+file.name+' ('+(file.size/1048576).toFixed(1)+'MB)');
+  document.getElementById('splash').classList.add('out');
+  document.getElementById('loader').classList.remove('out');
+  document.getElementById('loaderMsg').textContent='Reading '+file.name+'...';
+  const r=new FileReader();
+  r.onprogress=e=>{if(e.lengthComputable)document.getElementById('loaderMsg').textContent='Reading... '+Math.round(e.loaded/e.total*100)+'%'};
+  r.onload=e=>{
+    const d=new Uint8Array(e.target.result);
+    log('ROM: '+d.length+' bytes');
+    document.getElementById('loaderMsg').textContent='Starting emulator...';
+    if(typeof FS!=='undefined'){
+      try{FS.mkdir('/rom')}catch(x){}
+      var p='/rom/game.'+file.name.split('.').pop();
+      FS.writeFile(p,d);
       log('ROM written to VFS');
-      bootEmulator('/rom/game.' + file.name.split('.').pop());
-    } else {
-      log('Emscripten FS not ready, loading WASM first...');
-      window._pendingROM = { data: data, ext: file.name.split('.').pop() };
+      bootEmu(p);
+    }else{
+      window._rom={d:d,ext:file.name.split('.').pop()};
       loadWasm();
     }
   };
-  reader.readAsArrayBuffer(file);
+  r.readAsArrayBuffer(file);
 }
 
-function bootEmulator(romPath) {
-  document.getElementById('loaderText').textContent = 'Booting...';
-  // TODO: Call Dolphin's boot function with the ROM path
-  // For now, the Module.arguments are set at load time
-  log('Boot path: ' + romPath);
-  setTimeout(() => {
-    document.getElementById('loader').classList.add('hidden');
-    if(window.innerWidth <= 768) document.getElementById('osc').classList.add('active');
-  }, 2000);
+function bootEmu(path){
+  document.getElementById('loaderMsg').textContent='Booting...';
+  log('Boot: '+path);
+  Module.callMain(['-e',path,'-p','headless','-u','/dolphin-data/User']);
+  document.getElementById('loader').classList.add('out');
+  if(window.innerWidth<=768)document.getElementById('osc').classList.add('on');
 }
 
-function loadWasm() {
-  // Load the Emscripten module
-  var script = document.createElement('script');
-  script.src = 'dolphin-emu-nogui.js';
-  document.body.appendChild(script);
+function loadWasm(){
+  var s=document.createElement('script');
+  s.src='dolphin-emu-nogui.js';
+  document.body.appendChild(s);
 }
 
-async function connectController() {
-  if(!navigator.bluetooth) { log('Web Bluetooth not available'); return; }
-  try {
-    const dev = await navigator.bluetooth.requestDevice({
-      filters: [{ manufacturerData: [{ companyIdentifier: 0x0553 }] }],
-      optionalServices: ['00c5af5d-1964-4e30-8f51-1956f96bd280','ab7de9be-89fe-49ad-828f-118f09df7fd0'],
+async function connectCtrl(){
+  if(!navigator.bluetooth){log('Web Bluetooth not available');return}
+  try{
+    const d=await navigator.bluetooth.requestDevice({
+      filters:[{manufacturerData:[{companyIdentifier:0x0553}]}],
+      optionalServices:['00c5af5d-1964-4e30-8f51-1956f96bd280','ab7de9be-89fe-49ad-828f-118f09df7fd0']
     });
-    log('Connected: ' + (dev.name || 'Controller'));
-    const btn = document.getElementById('ctrlBtn');
-    btn.textContent = '🎮 ' + (dev.name || 'Connected');
-    btn.classList.add('nav-btn-connected');
-  } catch(e) { if(e.name !== 'NotFoundError') log('BT: ' + e.message); }
+    log('Connected: '+(d.name||'Controller'));
+    const b=document.getElementById('ctrlBtn');
+    b.textContent=d.name||'Connected';
+    b.classList.add('pill-ok');
+  }catch(e){if(e.name!=='NotFoundError')log('BT: '+e.message)}
 }
 
-function toggleSettings() {
-  const c = document.getElementById('settingsCard');
-  c.style.display = c.style.display === 'none' ? 'block' : 'none';
-}
-
-// Emscripten Module config
-var Module = {
-  canvas: document.getElementById('canvas'),
-  print: log,
-  printErr: function(t) { log('[err] ' + t); },
-  onRuntimeInitialized: function() {
+var Module={
+  canvas:document.getElementById('canvas'),
+  print:log,
+  printErr:function(t){log('[err] '+t)},
+  onRuntimeInitialized:function(){
     log('WASM runtime ready');
-    if(window._pendingROM) {
-      try { FS.mkdir('/rom'); } catch(e) {}
-      FS.writeFile('/rom/game.' + window._pendingROM.ext, window._pendingROM.data);
-      log('ROM written to VFS');
-      window._pendingROM = null;
+    if(window._rom){
+      try{FS.mkdir('/rom')}catch(x){}
+      var p='/rom/game.'+window._rom.ext;
+      FS.writeFile(p,window._rom.d);
+      log('ROM written to VFS: '+p);
+      window._rom=null;
+      log('Calling main()...');
+      Module.callMain(['-e',p,'-p','headless','-u','/dolphin-data/User']);
+      document.getElementById('loader').classList.add('out');
+      if(window.innerWidth<=768)document.getElementById('osc').classList.add('on');
     }
   },
-  noInitialRun: true, // Don't auto-run, wait for ROM
-  arguments: [],
+  noInitialRun:true,
+  arguments:[]
 };
 </script>
 </body>
