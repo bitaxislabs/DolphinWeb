@@ -242,8 +242,14 @@ function setAspect(v){
   const s=document.getElementById('stage');
   s.classList.remove('wide','classic');
   s.classList.add(v);
-  // Update nav button
   document.querySelectorAll('.nav-r .p')[1].textContent=v==='wide'?'16:9':'4:3';
+  // Write GFX config for Dolphin
+  if(typeof FS!=='undefined'){
+    try{FS.mkdir('/dolphin-data/User/Config')}catch(x){}
+    var wide=v==='wide'?'True':'False';
+    var cfg='[Settings]\nwideScreenHack = '+wide+'\nAspectRatio = '+(v==='wide'?'3':'0')+'\n';
+    FS.writeFile('/dolphin-data/User/Config/GFX.ini',cfg);
+  }
 }
 function toggleAspect(){setAspect(aspect==='classic'?'wide':'classic');document.getElementById('optAR').value=aspect}
 
@@ -261,6 +267,24 @@ document.getElementById('optCpu').addEventListener('change',function(){
 
 function handleROM(file){
   if(!file)return;
+  // If emulator already running, reload page with the new ROM
+  if(window._emuReady){
+    // Store ROM in sessionStorage and reload
+    var reader=new FileReader();
+    reader.onload=function(e){
+      // Can't store large files in sessionStorage, use IndexedDB
+      var req=indexedDB.open('dolphin_rom',1);
+      req.onupgradeneeded=function(ev){ev.target.result.createObjectStore('roms')};
+      req.onsuccess=function(ev){
+        var db=ev.target.result;
+        var tx=db.transaction('roms','readwrite');
+        tx.objectStore('roms').put({data:new Uint8Array(e.target.result),name:file.name},'pending');
+        tx.oncomplete=function(){window.location.reload()};
+      };
+    };
+    reader.readAsArrayBuffer(file);
+    return;
+  }
   log('Loading: '+file.name+' ('+(file.size/1048576).toFixed(1)+'MB)');
   document.getElementById('splash').classList.add('out');
   document.getElementById('loader').classList.remove('out');
@@ -330,6 +354,33 @@ var Module={
   noInitialRun:true,
   arguments:[]
 };
+</script>
+<script>
+// Check for pending ROM from reload
+(function(){
+  var req=indexedDB.open('dolphin_rom',1);
+  req.onupgradeneeded=function(ev){ev.target.result.createObjectStore('roms')};
+  req.onsuccess=function(ev){
+    var db=ev.target.result;
+    try{
+      var tx=db.transaction('roms','readwrite');
+      var get=tx.objectStore('roms').get('pending');
+      get.onsuccess=function(){
+        if(get.result){
+          var rom=get.result;
+          tx.objectStore('roms').delete('pending');
+          log('Resuming: '+rom.name);
+          document.getElementById('splash').classList.add('out');
+          document.getElementById('loader').classList.remove('out');
+          document.getElementById('lText').textContent='Starting '+rom.name+'...';
+          document.getElementById('lFill').style.width='100%';
+          window._rom={d:rom.data,ext:rom.name.split('.').pop()};
+          loadWasm();
+        }
+      };
+    }catch(e){}
+  };
+})();
 </script>
 <script src="packet-parser.js"></script>
 <script src="ble-manager.js"></script>
