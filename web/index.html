@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DolphinWeb</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; color: #fff; font-family: -apple-system, sans-serif; }
+  #container { display: flex; flex-direction: column; align-items: center; padding: 20px; }
+  h1 { font-size: 20px; margin-bottom: 10px; }
+  canvas { border: 1px solid #333; background: #111; }
+  #status { margin: 10px 0; font-size: 14px; color: #888; }
+  #console { width: 640px; height: 200px; background: #111; border: 1px solid #333;
+    font-family: monospace; font-size: 11px; color: #0f0; padding: 8px;
+    overflow-y: auto; white-space: pre-wrap; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div id="container">
+  <h1>DolphinWeb</h1>
+  <canvas id="canvas" width="640" height="480"></canvas>
+  <div id="status">Loading...</div>
+  <div id="console"></div>
+</div>
+
+<script>
+  const statusEl = document.getElementById('status');
+  const consoleEl = document.getElementById('console');
+
+  function log(msg) {
+    const line = `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+    consoleEl.textContent += line;
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+    console.log(msg);
+  }
+
+  // Capture stdout/stderr
+  var Module = {
+    canvas: document.getElementById('canvas'),
+    print: function(text) { log(text); },
+    printErr: function(text) { log('[ERR] ' + text); },
+    onRuntimeInitialized: function() {
+      log('WASM runtime initialized');
+      statusEl.textContent = 'Runtime ready. Starting Dolphin...';
+    },
+    arguments: ['-e', '/rom/game.rvz', '-p', 'headless', '-u', '/dolphin-data/User'],
+    locateFile: function(path) {
+      return path;
+    },
+    preRun: [function() {
+      log('PreRun: mounting filesystem...');
+      // ROM will be preloaded at /rom/game.rvz
+    }],
+    postRun: [function() {
+      log('PostRun complete');
+    }],
+  };
+
+  statusEl.textContent = 'Loading WASM (~8MB)...';
+  log('Starting DolphinWeb...');
+</script>
+<script src="dolphin-emu-nogui.js"></script>
+</body>
+</html>
