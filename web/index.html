@@ -1,63 +1,385 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>DolphinWeb</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dolphin for Web</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐬</text></svg>">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #000; color: #fff; font-family: -apple-system, sans-serif; }
-  #container { display: flex; flex-direction: column; align-items: center; padding: 20px; }
-  h1 { font-size: 20px; margin-bottom: 10px; }
-  canvas { border: 1px solid #333; background: #111; }
-  #status { margin: 10px 0; font-size: 14px; color: #888; }
-  #console { width: 640px; height: 200px; background: #111; border: 1px solid #333;
-    font-family: monospace; font-size: 11px; color: #0f0; padding: 8px;
-    overflow-y: auto; white-space: pre-wrap; margin-top: 10px; }
+  :root {
+    --bg: #0a0a0c;
+    --surface: #16161a;
+    --surface-hover: #1e1e24;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f0f2;
+    --text-dim: rgba(240,240,242,0.5);
+    --text-muted: rgba(240,240,242,0.3);
+    --accent: #6366f1;
+    --accent-glow: rgba(99,102,241,0.2);
+    --green: #22c55e;
+    --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; overflow:hidden; }
+  body { font-family:var(--font); background:var(--bg); color:var(--text); }
+
+  /* ---- Layout ---- */
+  #app { display:flex; flex-direction:column; height:100vh; }
+
+  /* ---- Top Bar ---- */
+  .topbar {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 16px; background:rgba(0,0,0,0.6);
+    border-bottom:0.5px solid var(--border); z-index:10;
+    flex-shrink:0;
+  }
+  .topbar-title { font-size:15px; font-weight:700; letter-spacing:-0.3px; }
+  .topbar-status { display:flex; align-items:center; gap:8px; }
+  .topbar-fps { font-size:12px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--green); }
+  .topbar-btn {
+    font-family:var(--font); font-size:12px; font-weight:600;
+    color:var(--accent); background:rgba(99,102,241,0.1);
+    border:none; border-radius:6px; padding:5px 12px; cursor:pointer;
+  }
+  .topbar-btn:hover { background:rgba(99,102,241,0.2); }
+
+  /* ---- Canvas Area ---- */
+  .canvas-area {
+    flex:1; display:flex; align-items:center; justify-content:center;
+    position:relative; overflow:hidden; background:#000;
+  }
+  #canvas {
+    max-width:100%; max-height:100%;
+    image-rendering:pixelated;
+    image-rendering:crisp-edges;
+  }
+
+  /* ---- Splash (before game loaded) ---- */
+  .splash {
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; z-index:5;
+    background:var(--bg);
+  }
+  .splash.hidden { display:none; }
+  .splash-icon { font-size:64px; margin-bottom:24px; }
+  .splash-title { font-size:28px; font-weight:800; letter-spacing:-1px; margin-bottom:8px; }
+  .splash-sub { font-size:14px; color:var(--text-dim); margin-bottom:32px; text-align:center; max-width:360px; line-height:1.5; }
+
+  .splash-drop {
+    width:280px; height:140px; border:2px dashed var(--border);
+    border-radius:16px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:8px;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .splash-drop:hover, .splash-drop.dragover {
+    border-color:var(--accent); background:var(--accent-glow);
+  }
+  .splash-drop-text { font-size:14px; font-weight:600; color:var(--text-dim); }
+  .splash-drop-hint { font-size:11px; color:var(--text-muted); }
+  .splash-drop-icon { font-size:28px; opacity:0.4; }
+
+  .splash-or { font-size:12px; color:var(--text-muted); margin:16px 0; }
+
+  .splash-bt-btn {
+    font-family:var(--font); font-size:14px; font-weight:600;
+    color:var(--accent); background:none; border:1px solid rgba(99,102,241,0.3);
+    border-radius:100px; padding:10px 24px; cursor:pointer; transition:all 0.2s;
+  }
+  .splash-bt-btn:hover { background:rgba(99,102,241,0.1); }
+
+  .splash-credit { font-size:11px; color:var(--text-muted); margin-top:40px; opacity:0.5; }
+  .splash-credit a { color:inherit; text-decoration:none; }
+
+  /* ---- On-Screen Controls (mobile) ---- */
+  .controls {
+    display:none; position:absolute; inset:0; z-index:4;
+    pointer-events:none;
+  }
+  .controls.active { display:block; }
+
+  .dpad {
+    position:absolute; bottom:20px; left:20px; width:120px; height:120px;
+    pointer-events:auto; touch-action:none;
+  }
+  .dpad-btn {
+    position:absolute; width:40px; height:40px; border-radius:8px;
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; color:rgba(255,255,255,0.4); touch-action:none;
+  }
+  .dpad-btn:active { background:rgba(255,255,255,0.2); }
+  .dpad-up { top:0; left:40px; }
+  .dpad-down { bottom:0; left:40px; }
+  .dpad-left { top:40px; left:0; }
+  .dpad-right { top:40px; right:0; }
+
+  .action-btns {
+    position:absolute; bottom:20px; right:20px;
+    width:120px; height:120px; pointer-events:auto; touch-action:none;
+  }
+  .action-btn {
+    position:absolute; width:44px; height:44px; border-radius:50%;
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); touch-action:none;
+  }
+  .action-btn:active { background:rgba(255,255,255,0.25); }
+  .btn-a { bottom:0; left:38px; background:rgba(34,197,94,0.15); border-color:rgba(34,197,94,0.3); color:rgba(34,197,94,0.7); }
+  .btn-b { left:0; bottom:38px; background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.3); color:rgba(239,68,68,0.7); }
+  .btn-x { right:0; bottom:38px; }
+  .btn-y { top:0; left:38px; }
+
+  .shoulder-btns {
+    position:absolute; top:8px; left:0; right:0;
+    display:flex; justify-content:space-between; padding:0 16px;
+    pointer-events:auto;
+  }
+  .shoulder-btn {
+    font-family:var(--font); font-size:11px; font-weight:700;
+    color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.1); border-radius:8px;
+    padding:8px 20px; touch-action:none;
+  }
+  .shoulder-btn:active { background:rgba(255,255,255,0.15); }
+
+  .start-select {
+    position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+    display:flex; gap:12px; pointer-events:auto;
+  }
+  .ss-btn {
+    font-family:var(--font); font-size:10px; font-weight:600;
+    color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08); border-radius:100px;
+    padding:6px 16px; touch-action:none;
+  }
+
+  /* ---- Console Log ---- */
+  .console-toggle {
+    flex-shrink:0; padding:6px; text-align:center;
+    font-size:11px; color:var(--text-muted); background:rgba(0,0,0,0.4);
+    border:none; border-top:0.5px solid var(--border);
+    cursor:pointer; width:100%; font-family:var(--font);
+  }
+  .console-panel {
+    max-height:0; overflow:hidden; background:rgba(0,0,0,0.8);
+    transition:max-height 0.2s; flex-shrink:0;
+  }
+  .console-panel.open { max-height:150px; }
+  .console-entries {
+    padding:8px 12px; max-height:140px; overflow-y:auto;
+    font-family:'SF Mono',monospace; font-size:10px; line-height:1.5;
+    color:var(--text-muted);
+  }
+
+  /* ---- Loading Overlay ---- */
+  .loading {
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; background:rgba(0,0,0,0.9);
+    z-index:20;
+  }
+  .loading.hidden { display:none; }
+  .loading-spinner {
+    width:32px; height:32px; border:3px solid var(--border);
+    border-top-color:var(--accent); border-radius:50%;
+    animation:spin 0.8s linear infinite; margin-bottom:16px;
+  }
+  .loading-text { font-size:14px; color:var(--text-dim); }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* ---- Responsive ---- */
+  @media (max-width:768px) {
+    .controls.active { display:block; }
+    .topbar-title { font-size:13px; }
+  }
+  @media (min-width:769px) {
+    .controls { display:none !important; }
+  }
 </style>
 </head>
 <body>
-<div id="container">
-  <h1>DolphinWeb</h1>
-  <canvas id="canvas" width="640" height="480"></canvas>
-  <div id="status">Loading...</div>
-  <div id="console"></div>
+<div id="app">
+  <!-- Top Bar -->
+  <div class="topbar">
+    <span class="topbar-title">Dolphin for Web</span>
+    <div class="topbar-status">
+      <span class="topbar-fps" id="fpsDisplay"></span>
+      <button class="topbar-btn" id="controllerBtn" onclick="connectController()">Controller</button>
+      <button class="topbar-btn" onclick="document.getElementById('romInput').click()">Load ROM</button>
+    </div>
+  </div>
+
+  <!-- Canvas + Splash + Controls -->
+  <div class="canvas-area">
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <!-- Splash Screen -->
+    <div class="splash" id="splash">
+      <div class="splash-icon">🐬</div>
+      <div class="splash-title">Dolphin for Web</div>
+      <div class="splash-sub">GameCube emulation in the browser via WebAssembly. Drop a ROM to start.</div>
+
+      <div class="splash-drop" id="dropZone" onclick="document.getElementById('romInput').click()">
+        <div class="splash-drop-icon">📁</div>
+        <div class="splash-drop-text">Drop ROM here</div>
+        <div class="splash-drop-hint">.iso .gcm .rvz .gcz</div>
+      </div>
+
+      <div class="splash-or">or</div>
+
+      <button class="splash-bt-btn" onclick="connectController()">
+        Connect NSW2 Controller
+      </button>
+
+      <input type="file" id="romInput" accept=".iso,.gcm,.rvz,.gcz,.wbfs" style="display:none" onchange="loadROM(this.files[0])">
+
+      <div class="splash-credit">
+        <a href="https://bitaxislabs.com" target="_blank">by Bit-Axis Labs</a>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading hidden" id="loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text" id="loadingText">Loading...</div>
+    </div>
+
+    <!-- On-Screen Controls (mobile) -->
+    <div class="controls" id="onScreenControls">
+      <div class="shoulder-btns">
+        <div class="shoulder-btn" data-btn="L">L</div>
+        <div class="shoulder-btn" data-btn="R">R</div>
+      </div>
+      <div class="dpad">
+        <div class="dpad-btn dpad-up" data-btn="up">▲</div>
+        <div class="dpad-btn dpad-down" data-btn="down">▼</div>
+        <div class="dpad-btn dpad-left" data-btn="left">◀</div>
+        <div class="dpad-btn dpad-right" data-btn="right">▶</div>
+      </div>
+      <div class="action-btns">
+        <div class="action-btn btn-a" data-btn="A">A</div>
+        <div class="action-btn btn-b" data-btn="B">B</div>
+        <div class="action-btn btn-x" data-btn="X">X</div>
+        <div class="action-btn btn-y" data-btn="Y">Y</div>
+      </div>
+      <div class="start-select">
+        <div class="ss-btn" data-btn="start">START</div>
+        <div class="ss-btn" data-btn="Z">Z</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Console -->
+  <button class="console-toggle" onclick="toggleConsole()">Console</button>
+  <div class="console-panel" id="consolePanel">
+    <div class="console-entries" id="consoleEntries"></div>
+  </div>
 </div>
 
 <script>
-  const statusEl = document.getElementById('status');
-  const consoleEl = document.getElementById('console');
+  // ---- State ----
+  let romLoaded = false;
+  let consoleOpen = false;
 
+  // ---- Console ----
   function log(msg) {
-    const line = `[${new Date().toLocaleTimeString()}] ${msg}\n`;
-    consoleEl.textContent += line;
-    consoleEl.scrollTop = consoleEl.scrollHeight;
+    const el = document.getElementById('consoleEntries');
+    el.textContent += msg + '\n';
+    el.scrollTop = el.scrollHeight;
     console.log(msg);
   }
 
-  // Capture stdout/stderr
+  function toggleConsole() {
+    consoleOpen = !consoleOpen;
+    document.getElementById('consolePanel').classList.toggle('open', consoleOpen);
+  }
+
+  // ---- ROM Loading ----
+  function loadROM(file) {
+    if (!file) return;
+    log('Loading ROM: ' + file.name + ' (' + (file.size / 1048576).toFixed(1) + 'MB)');
+    document.getElementById('splash').classList.add('hidden');
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('loadingText').textContent = 'Loading ' + file.name + '...';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const data = new Uint8Array(e.target.result);
+      log('ROM loaded: ' + data.length + ' bytes');
+      document.getElementById('loadingText').textContent = 'Starting emulator...';
+      // TODO: Pass ROM data to Dolphin WASM module
+      // For now, the preloaded ROM is used
+      startEmulator();
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // ---- Drag & Drop ----
+  const dropZone = document.getElementById('dropZone');
+  document.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  document.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  document.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length > 0) loadROM(e.dataTransfer.files[0]);
+  });
+
+  // ---- Controller ----
+  async function connectController() {
+    if (!navigator.bluetooth) {
+      log('Web Bluetooth not available');
+      return;
+    }
+    log('Opening Bluetooth picker...');
+    try {
+      const device = await navigator.bluetooth.requestDevice({
+        filters: [{ manufacturerData: [{ companyIdentifier: 0x0553 }] }],
+        optionalServices: [
+          '00c5af5d-1964-4e30-8f51-1956f96bd280',
+          'ab7de9be-89fe-49ad-828f-118f09df7fd0',
+        ],
+      });
+      log('Connected: ' + (device.name || 'Controller'));
+      document.getElementById('controllerBtn').textContent = 'Connected';
+      document.getElementById('controllerBtn').style.color = 'var(--green)';
+      // TODO: Wire into Dolphin's input system
+    } catch (err) {
+      if (err.name !== 'NotFoundError') log('BT error: ' + err.message);
+    }
+  }
+
+  // ---- Emulator ----
+  function startEmulator() {
+    // Show on-screen controls on mobile
+    if (window.innerWidth <= 768) {
+      document.getElementById('onScreenControls').classList.add('active');
+    }
+
+    // The Emscripten module handles everything
+    document.getElementById('loading').classList.add('hidden');
+    log('Emulator started');
+  }
+
+  // ---- Emscripten Module ----
   var Module = {
     canvas: document.getElementById('canvas'),
     print: function(text) { log(text); },
     printErr: function(text) { log('[ERR] ' + text); },
     onRuntimeInitialized: function() {
-      log('WASM runtime initialized');
-      statusEl.textContent = 'Runtime ready. Starting Dolphin...';
+      log('WASM runtime ready');
     },
     arguments: ['-e', '/rom/game.rvz', '-p', 'headless', '-u', '/dolphin-data/User'],
-    locateFile: function(path) {
-      return path;
-    },
     preRun: [function() {
-      log('PreRun: mounting filesystem...');
-      // ROM will be preloaded at /rom/game.rvz
+      log('Mounting filesystem...');
     }],
     postRun: [function() {
-      log('PostRun complete');
+      // Hide splash, show game
+      document.getElementById('splash').classList.add('hidden');
+      document.getElementById('loading').classList.add('hidden');
+      if (window.innerWidth <= 768) {
+        document.getElementById('onScreenControls').classList.add('active');
+      }
     }],
   };
-
-  statusEl.textContent = 'Loading WASM (~8MB)...';
-  log('Starting DolphinWeb...');
 </script>
 <script src="dolphin-emu-nogui.js"></script>
 </body>
