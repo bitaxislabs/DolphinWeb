@@ -6,381 +6,443 @@
 <title>Dolphin for Web</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐬</text></svg>">
 <style>
-  :root {
-    --bg: #0a0a0c;
-    --surface: #16161a;
-    --surface-hover: #1e1e24;
-    --border: rgba(255,255,255,0.08);
-    --text: #f0f0f2;
-    --text-dim: rgba(240,240,242,0.5);
-    --text-muted: rgba(240,240,242,0.3);
-    --accent: #6366f1;
-    --accent-glow: rgba(99,102,241,0.2);
-    --green: #22c55e;
-    --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html, body { height:100%; overflow:hidden; }
-  body { font-family:var(--font); background:var(--bg); color:var(--text); }
+:root {
+  --bg: #000000;
+  --surface: #111113;
+  --surface2: #1a1a1e;
+  --border: rgba(255,255,255,0.07);
+  --text: #f5f5f7;
+  --dim: rgba(245,245,247,0.55);
+  --muted: rgba(245,245,247,0.25);
+  --accent: #5e5ce6;
+  --accent2: #bf5af2;
+  --green: #30d158;
+  --orange: #ff9f0a;
+  --red: #ff453a;
+  --blue: #0a84ff;
+  --radius: 14px;
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --mono: 'SF Mono', Menlo, monospace;
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; -webkit-font-smoothing:antialiased; }
+body { font-family:var(--font); background:var(--bg); color:var(--text); }
+::selection { background:rgba(94,92,230,0.3); }
 
-  /* ---- Layout ---- */
-  #app { display:flex; flex-direction:column; height:100vh; }
+#app { display:flex; flex-direction:column; height:100vh; }
 
-  /* ---- Top Bar ---- */
-  .topbar {
-    display:flex; justify-content:space-between; align-items:center;
-    padding:8px 16px; background:rgba(0,0,0,0.6);
-    border-bottom:0.5px solid var(--border); z-index:10;
-    flex-shrink:0;
-  }
-  .topbar-title { font-size:15px; font-weight:700; letter-spacing:-0.3px; }
-  .topbar-status { display:flex; align-items:center; gap:8px; }
-  .topbar-fps { font-size:12px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--green); }
-  .topbar-btn {
-    font-family:var(--font); font-size:12px; font-weight:600;
-    color:var(--accent); background:rgba(99,102,241,0.1);
-    border:none; border-radius:6px; padding:5px 12px; cursor:pointer;
-  }
-  .topbar-btn:hover { background:rgba(99,102,241,0.2); }
+/* ---- Navbar ---- */
+.nav {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:0 16px; height:44px; background:rgba(0,0,0,0.8);
+  border-bottom:0.5px solid var(--border); flex-shrink:0; z-index:50;
+}
+.nav-brand { display:flex; align-items:center; gap:8px; }
+.nav-logo { font-size:20px; }
+.nav-title { font-size:15px; font-weight:700; letter-spacing:-0.3px; }
+.nav-actions { display:flex; align-items:center; gap:8px; }
+.nav-btn {
+  font-family:var(--font); font-size:12px; font-weight:600;
+  padding:5px 14px; border-radius:100px; cursor:pointer;
+  border:none; transition:all 0.15s var(--ease);
+}
+.nav-btn-primary {
+  background:var(--accent); color:#fff;
+}
+.nav-btn-primary:hover { background:#7371ee; transform:scale(1.02); }
+.nav-btn-ghost {
+  background:rgba(255,255,255,0.06); color:var(--dim);
+  border:0.5px solid var(--border);
+}
+.nav-btn-ghost:hover { background:rgba(255,255,255,0.1); color:var(--text); }
+.nav-btn-connected { color:var(--green); border-color:rgba(48,209,88,0.3); }
+.nav-fps {
+  font-size:11px; font-weight:600; font-family:var(--mono);
+  color:var(--green); font-variant-numeric:tabular-nums;
+  min-width:50px; text-align:right;
+}
 
-  /* ---- Canvas Area ---- */
-  .canvas-area {
-    flex:1; display:flex; align-items:center; justify-content:center;
-    position:relative; overflow:hidden; background:#000;
-  }
-  #canvas {
-    max-width:100%; max-height:100%;
-    image-rendering:pixelated;
-    image-rendering:crisp-edges;
-  }
+/* ---- Canvas ---- */
+.canvas-wrap {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden; background:#000;
+}
+#canvas {
+  max-width:100%; max-height:100%;
+  image-rendering:pixelated; image-rendering:crisp-edges;
+}
 
-  /* ---- Splash (before game loaded) ---- */
-  .splash {
-    position:absolute; inset:0; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; z-index:5;
-    background:var(--bg);
-  }
-  .splash.hidden { display:none; }
-  .splash-icon { font-size:64px; margin-bottom:24px; }
-  .splash-title { font-size:28px; font-weight:800; letter-spacing:-1px; margin-bottom:8px; }
-  .splash-sub { font-size:14px; color:var(--text-dim); margin-bottom:32px; text-align:center; max-width:360px; line-height:1.5; }
+/* ---- Splash ---- */
+.splash {
+  position:absolute; inset:0; z-index:10;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--bg);
+  animation:fadeIn 0.4s var(--ease);
+}
+.splash.hidden { display:none; }
+.splash-inner {
+  display:flex; flex-direction:column; align-items:center;
+  max-width:400px; width:100%; padding:0 24px;
+}
+.splash-glow {
+  width:200px; height:200px; border-radius:50%;
+  background:radial-gradient(circle, rgba(94,92,230,0.15) 0%, transparent 70%);
+  position:absolute; top:50%; left:50%; transform:translate(-50%, -65%);
+  animation:breathe 4s ease-in-out infinite;
+}
+.splash-emoji { font-size:56px; margin-bottom:20px; animation:float 3s ease-in-out infinite; }
+.splash-h1 { font-size:32px; font-weight:800; letter-spacing:-1.5px; margin-bottom:6px; }
+.splash-h1 span { background:linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.splash-sub { font-size:14px; color:var(--muted); text-align:center; line-height:1.5; margin-bottom:36px; }
 
-  .splash-drop {
-    width:280px; height:140px; border:2px dashed var(--border);
-    border-radius:16px; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; gap:8px;
-    cursor:pointer; transition:all 0.2s;
-  }
-  .splash-drop:hover, .splash-drop.dragover {
-    border-color:var(--accent); background:var(--accent-glow);
-  }
-  .splash-drop-text { font-size:14px; font-weight:600; color:var(--text-dim); }
-  .splash-drop-hint { font-size:11px; color:var(--text-muted); }
-  .splash-drop-icon { font-size:28px; opacity:0.4; }
+/* Drop zone */
+.drop-zone {
+  width:100%; padding:32px; border:2px dashed rgba(255,255,255,0.08);
+  border-radius:var(--radius); display:flex; flex-direction:column;
+  align-items:center; gap:10px; cursor:pointer;
+  transition:all 0.2s var(--ease); position:relative; overflow:hidden;
+}
+.drop-zone::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(94,92,230,0.03), rgba(191,90,242,0.03));
+  opacity:0; transition:opacity 0.2s;
+}
+.drop-zone:hover::before, .drop-zone.dragover::before { opacity:1; }
+.drop-zone:hover, .drop-zone.dragover {
+  border-color:var(--accent); transform:scale(1.01);
+}
+.drop-icon { font-size:32px; opacity:0.3; }
+.drop-label { font-size:15px; font-weight:600; color:var(--dim); }
+.drop-hint { font-size:11px; color:var(--muted); }
 
-  .splash-or { font-size:12px; color:var(--text-muted); margin:16px 0; }
+/* Settings card */
+.settings-card {
+  width:100%; margin-top:20px; background:var(--surface);
+  border:0.5px solid var(--border); border-radius:var(--radius);
+  overflow:hidden;
+}
+.settings-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 16px; border-bottom:0.5px solid var(--border);
+}
+.settings-row:last-child { border-bottom:none; }
+.settings-label { font-size:13px; font-weight:500; color:var(--dim); }
+.settings-value {
+  font-family:var(--font); font-size:12px; font-weight:600;
+  color:var(--text); background:var(--surface2);
+  border:0.5px solid var(--border); border-radius:8px;
+  padding:5px 12px; cursor:pointer; appearance:none;
+  -webkit-appearance:none;
+}
+select.settings-value {
+  padding-right:24px;
+  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 8px center;
+}
 
-  .splash-bt-btn {
-    font-family:var(--font); font-size:14px; font-weight:600;
-    color:var(--accent); background:none; border:1px solid rgba(99,102,241,0.3);
-    border-radius:100px; padding:10px 24px; cursor:pointer; transition:all 0.2s;
-  }
-  .splash-bt-btn:hover { background:rgba(99,102,241,0.1); }
+.splash-footer {
+  display:flex; align-items:center; gap:8px; margin-top:36px;
+  font-size:11px; color:var(--muted); opacity:0.4;
+}
+.splash-footer a { color:inherit; text-decoration:none; }
+.splash-footer a:hover { opacity:0.8; }
 
-  .splash-credit { font-size:11px; color:var(--text-muted); margin-top:40px; opacity:0.5; }
-  .splash-credit a { color:inherit; text-decoration:none; }
+/* ---- On-Screen Controls ---- */
+.osc { display:none; position:absolute; inset:0; z-index:8; pointer-events:none; }
+.osc.active { display:block; }
 
-  /* ---- On-Screen Controls (mobile) ---- */
-  .controls {
-    display:none; position:absolute; inset:0; z-index:4;
-    pointer-events:none;
-  }
-  .controls.active { display:block; }
+.osc-dpad {
+  position:absolute; bottom:24px; left:24px; width:110px; height:110px;
+  pointer-events:auto; touch-action:none;
+}
+.osc-d {
+  position:absolute; width:36px; height:36px; border-radius:8px;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; color:rgba(255,255,255,0.3); touch-action:none;
+  transition:background 0.1s;
+}
+.osc-d:active { background:rgba(255,255,255,0.2); }
+.osc-d.up { top:0; left:37px; } .osc-d.down { bottom:0; left:37px; }
+.osc-d.left { top:37px; left:0; } .osc-d.right { top:37px; right:0; }
 
-  .dpad {
-    position:absolute; bottom:20px; left:20px; width:120px; height:120px;
-    pointer-events:auto; touch-action:none;
-  }
-  .dpad-btn {
-    position:absolute; width:40px; height:40px; border-radius:8px;
-    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
-    display:flex; align-items:center; justify-content:center;
-    font-size:16px; color:rgba(255,255,255,0.4); touch-action:none;
-  }
-  .dpad-btn:active { background:rgba(255,255,255,0.2); }
-  .dpad-up { top:0; left:40px; }
-  .dpad-down { bottom:0; left:40px; }
-  .dpad-left { top:40px; left:0; }
-  .dpad-right { top:40px; right:0; }
+.osc-face {
+  position:absolute; bottom:24px; right:24px; width:110px; height:110px;
+  pointer-events:auto; touch-action:none;
+}
+.osc-f {
+  position:absolute; width:40px; height:40px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:700; touch-action:none;
+  transition:background 0.1s;
+}
+.osc-f:active { filter:brightness(1.5); }
+.osc-a { bottom:0; left:35px; background:rgba(48,209,88,0.12); border:1px solid rgba(48,209,88,0.25); color:rgba(48,209,88,0.6); }
+.osc-b { left:0; bottom:35px; background:rgba(255,69,58,0.12); border:1px solid rgba(255,69,58,0.25); color:rgba(255,69,58,0.6); }
+.osc-x { right:0; bottom:35px; background:rgba(10,132,255,0.12); border:1px solid rgba(10,132,255,0.25); color:rgba(10,132,255,0.6); }
+.osc-y { top:0; left:35px; background:rgba(255,214,10,0.12); border:1px solid rgba(255,214,10,0.25); color:rgba(255,214,10,0.6); }
 
-  .action-btns {
-    position:absolute; bottom:20px; right:20px;
-    width:120px; height:120px; pointer-events:auto; touch-action:none;
-  }
-  .action-btn {
-    position:absolute; width:44px; height:44px; border-radius:50%;
-    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
-    display:flex; align-items:center; justify-content:center;
-    font-size:13px; font-weight:700; color:rgba(255,255,255,0.5); touch-action:none;
-  }
-  .action-btn:active { background:rgba(255,255,255,0.25); }
-  .btn-a { bottom:0; left:38px; background:rgba(34,197,94,0.15); border-color:rgba(34,197,94,0.3); color:rgba(34,197,94,0.7); }
-  .btn-b { left:0; bottom:38px; background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.3); color:rgba(239,68,68,0.7); }
-  .btn-x { right:0; bottom:38px; }
-  .btn-y { top:0; left:38px; }
+.osc-bumpers {
+  position:absolute; top:8px; left:0; right:0;
+  display:flex; justify-content:space-between; padding:0 16px; pointer-events:auto;
+}
+.osc-bump {
+  font-family:var(--font); font-size:11px; font-weight:700;
+  color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08); border-radius:8px;
+  padding:8px 24px; touch-action:none;
+}
+.osc-bump:active { background:rgba(255,255,255,0.15); }
 
-  .shoulder-btns {
-    position:absolute; top:8px; left:0; right:0;
-    display:flex; justify-content:space-between; padding:0 16px;
-    pointer-events:auto;
-  }
-  .shoulder-btn {
-    font-family:var(--font); font-size:11px; font-weight:700;
-    color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.1); border-radius:8px;
-    padding:8px 20px; touch-action:none;
-  }
-  .shoulder-btn:active { background:rgba(255,255,255,0.15); }
+.osc-meta {
+  position:absolute; bottom:24px; left:50%; transform:translateX(-50%);
+  display:flex; gap:12px; pointer-events:auto;
+}
+.osc-m {
+  font-family:var(--font); font-size:9px; font-weight:600; text-transform:uppercase;
+  letter-spacing:0.5px; color:rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);
+  border-radius:100px; padding:6px 14px; touch-action:none;
+}
 
-  .start-select {
-    position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
-    display:flex; gap:12px; pointer-events:auto;
-  }
-  .ss-btn {
-    font-family:var(--font); font-size:10px; font-weight:600;
-    color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.08); border-radius:100px;
-    padding:6px 16px; touch-action:none;
-  }
+/* ---- Loading ---- */
+.loader {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; z-index:20;
+  background:rgba(0,0,0,0.92);
+}
+.loader.hidden { display:none; }
+.loader-ring {
+  width:36px; height:36px; border:3px solid var(--border);
+  border-top-color:var(--accent); border-radius:50%;
+  animation:spin 0.7s linear infinite; margin-bottom:16px;
+}
+.loader-text { font-size:13px; color:var(--dim); }
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
+@keyframes breathe { 0%,100% { opacity:0.6; transform:translate(-50%,-65%) scale(1); } 50% { opacity:1; transform:translate(-50%,-65%) scale(1.1); } }
 
-  /* ---- Console Log ---- */
-  .console-toggle {
-    flex-shrink:0; padding:6px; text-align:center;
-    font-size:11px; color:var(--text-muted); background:rgba(0,0,0,0.4);
-    border:none; border-top:0.5px solid var(--border);
-    cursor:pointer; width:100%; font-family:var(--font);
-  }
-  .console-panel {
-    max-height:0; overflow:hidden; background:rgba(0,0,0,0.8);
-    transition:max-height 0.2s; flex-shrink:0;
-  }
-  .console-panel.open { max-height:150px; }
-  .console-entries {
-    padding:8px 12px; max-height:140px; overflow-y:auto;
-    font-family:'SF Mono',monospace; font-size:10px; line-height:1.5;
-    color:var(--text-muted);
-  }
+/* ---- Console ---- */
+.con-toggle {
+  flex-shrink:0; width:100%; padding:5px; text-align:center;
+  font-family:var(--font); font-size:10px; color:var(--muted);
+  background:rgba(0,0,0,0.5); border:none; border-top:0.5px solid var(--border);
+  cursor:pointer;
+}
+.con-panel { max-height:0; overflow:hidden; background:rgba(0,0,0,0.85); transition:max-height 0.2s; flex-shrink:0; }
+.con-panel.open { max-height:120px; }
+.con-entries {
+  padding:6px 10px; max-height:110px; overflow-y:auto;
+  font-family:var(--mono); font-size:10px; line-height:1.5; color:var(--muted); white-space:pre-wrap;
+}
 
-  /* ---- Loading Overlay ---- */
-  .loading {
-    position:absolute; inset:0; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; background:rgba(0,0,0,0.9);
-    z-index:20;
-  }
-  .loading.hidden { display:none; }
-  .loading-spinner {
-    width:32px; height:32px; border:3px solid var(--border);
-    border-top-color:var(--accent); border-radius:50%;
-    animation:spin 0.8s linear infinite; margin-bottom:16px;
-  }
-  .loading-text { font-size:14px; color:var(--text-dim); }
-  @keyframes spin { to { transform:rotate(360deg); } }
-
-  /* ---- Responsive ---- */
-  @media (max-width:768px) {
-    .controls.active { display:block; }
-    .topbar-title { font-size:13px; }
-  }
-  @media (min-width:769px) {
-    .controls { display:none !important; }
-  }
+/* ---- Responsive ---- */
+@media (max-width:768px) {
+  .osc.active { display:block; }
+  .nav { height:38px; }
+  .nav-title { font-size:13px; }
+  .nav-btn { font-size:11px; padding:4px 10px; }
+}
+@media (min-width:769px) { .osc { display:none !important; } }
 </style>
 </head>
 <body>
 <div id="app">
-  <!-- Top Bar -->
-  <div class="topbar">
-    <span class="topbar-title">Dolphin for Web</span>
-    <div class="topbar-status">
-      <span class="topbar-fps" id="fpsDisplay"></span>
-      <button class="topbar-btn" id="controllerBtn" onclick="connectController()">Controller</button>
-      <button class="topbar-btn" onclick="document.getElementById('romInput').click()">Load ROM</button>
+  <nav class="nav">
+    <div class="nav-brand">
+      <span class="nav-logo">🐬</span>
+      <span class="nav-title">Dolphin for Web</span>
     </div>
-  </div>
+    <div class="nav-actions">
+      <span class="nav-fps" id="fps"></span>
+      <button class="nav-btn nav-btn-ghost" id="ctrlBtn" onclick="connectController()">🎮 Controller</button>
+      <button class="nav-btn nav-btn-ghost" onclick="toggleSettings()">⚙</button>
+      <button class="nav-btn nav-btn-primary" onclick="document.getElementById('romFile').click()">Load ROM</button>
+      <input type="file" id="romFile" accept=".iso,.gcm,.rvz,.gcz,.wbfs" style="display:none" onchange="handleROM(this.files[0])">
+    </div>
+  </nav>
 
-  <!-- Canvas + Splash + Controls -->
-  <div class="canvas-area">
+  <div class="canvas-wrap">
     <canvas id="canvas" width="640" height="480"></canvas>
 
-    <!-- Splash Screen -->
     <div class="splash" id="splash">
-      <div class="splash-icon">🐬</div>
-      <div class="splash-title">Dolphin for Web</div>
-      <div class="splash-sub">GameCube emulation in the browser via WebAssembly. Drop a ROM to start.</div>
+      <div class="splash-glow"></div>
+      <div class="splash-inner">
+        <div class="splash-emoji">🐬</div>
+        <h1 class="splash-h1">Dolphin <span>for Web</span></h1>
+        <p class="splash-sub">GameCube emulation running entirely in your browser. Upload a ROM to play.</p>
 
-      <div class="splash-drop" id="dropZone" onclick="document.getElementById('romInput').click()">
-        <div class="splash-drop-icon">📁</div>
-        <div class="splash-drop-text">Drop ROM here</div>
-        <div class="splash-drop-hint">.iso .gcm .rvz .gcz</div>
-      </div>
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('romFile').click()">
+          <div class="drop-icon">📂</div>
+          <div class="drop-label">Drop a ROM here</div>
+          <div class="drop-hint">.iso .gcm .rvz .gcz supported</div>
+        </div>
 
-      <div class="splash-or">or</div>
+        <div class="settings-card" id="settingsCard">
+          <div class="settings-row">
+            <span class="settings-label">CPU Backend</span>
+            <select class="settings-value" id="cpuBackend">
+              <option value="5" selected>Cached Interpreter</option>
+              <option value="6">WASM JIT (experimental)</option>
+              <option value="0">Interpreter (slow)</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Video</span>
+            <select class="settings-value" id="videoBackend">
+              <option value="sw" selected>Software Renderer</option>
+              <option value="ogl" disabled>WebGL (coming soon)</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Skip Idle</span>
+            <select class="settings-value" id="skipIdle">
+              <option value="1" selected>On</option>
+              <option value="0">Off</option>
+            </select>
+          </div>
+        </div>
 
-      <button class="splash-bt-btn" onclick="connectController()">
-        Connect NSW2 Controller
-      </button>
-
-      <input type="file" id="romInput" accept=".iso,.gcm,.rvz,.gcz,.wbfs" style="display:none" onchange="loadROM(this.files[0])">
-
-      <div class="splash-credit">
-        <a href="https://bitaxislabs.com" target="_blank">by Bit-Axis Labs</a>
+        <div class="splash-footer">
+          <a href="https://bitaxislabs.com" target="_blank">by Bit-Axis Labs</a>
+        </div>
       </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading hidden" id="loading">
-      <div class="loading-spinner"></div>
-      <div class="loading-text" id="loadingText">Loading...</div>
+    <div class="loader hidden" id="loader">
+      <div class="loader-ring"></div>
+      <div class="loader-text" id="loaderText">Loading...</div>
     </div>
 
-    <!-- On-Screen Controls (mobile) -->
-    <div class="controls" id="onScreenControls">
-      <div class="shoulder-btns">
-        <div class="shoulder-btn" data-btn="L">L</div>
-        <div class="shoulder-btn" data-btn="R">R</div>
+    <div class="osc" id="osc">
+      <div class="osc-bumpers">
+        <div class="osc-bump">L</div>
+        <div class="osc-bump">R</div>
       </div>
-      <div class="dpad">
-        <div class="dpad-btn dpad-up" data-btn="up">▲</div>
-        <div class="dpad-btn dpad-down" data-btn="down">▼</div>
-        <div class="dpad-btn dpad-left" data-btn="left">◀</div>
-        <div class="dpad-btn dpad-right" data-btn="right">▶</div>
+      <div class="osc-dpad">
+        <div class="osc-d up">▲</div>
+        <div class="osc-d down">▼</div>
+        <div class="osc-d left">◀</div>
+        <div class="osc-d right">▶</div>
       </div>
-      <div class="action-btns">
-        <div class="action-btn btn-a" data-btn="A">A</div>
-        <div class="action-btn btn-b" data-btn="B">B</div>
-        <div class="action-btn btn-x" data-btn="X">X</div>
-        <div class="action-btn btn-y" data-btn="Y">Y</div>
+      <div class="osc-face">
+        <div class="osc-f osc-a">A</div>
+        <div class="osc-f osc-b">B</div>
+        <div class="osc-f osc-x">X</div>
+        <div class="osc-f osc-y">Y</div>
       </div>
-      <div class="start-select">
-        <div class="ss-btn" data-btn="start">START</div>
-        <div class="ss-btn" data-btn="Z">Z</div>
+      <div class="osc-meta">
+        <div class="osc-m">START</div>
+        <div class="osc-m">Z</div>
       </div>
     </div>
   </div>
 
-  <!-- Console -->
-  <button class="console-toggle" onclick="toggleConsole()">Console</button>
-  <div class="console-panel" id="consolePanel">
-    <div class="console-entries" id="consoleEntries"></div>
+  <button class="con-toggle" onclick="toggleCon()">Console</button>
+  <div class="con-panel" id="conPanel">
+    <div class="con-entries" id="conEntries"></div>
   </div>
 </div>
 
 <script>
-  // ---- State ----
-  let romLoaded = false;
-  let consoleOpen = false;
+let conOpen = false;
+function toggleCon() { conOpen = !conOpen; document.getElementById('conPanel').classList.toggle('open', conOpen); }
+function log(m) { const e = document.getElementById('conEntries'); e.textContent += m+'\n'; e.scrollTop = e.scrollHeight; }
 
-  // ---- Console ----
-  function log(msg) {
-    const el = document.getElementById('consoleEntries');
-    el.textContent += msg + '\n';
-    el.scrollTop = el.scrollHeight;
-    console.log(msg);
-  }
+// Drag and drop
+const dz = document.getElementById('dropZone');
+document.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+document.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+document.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); if(e.dataTransfer.files.length) handleROM(e.dataTransfer.files[0]); });
 
-  function toggleConsole() {
-    consoleOpen = !consoleOpen;
-    document.getElementById('consolePanel').classList.toggle('open', consoleOpen);
-  }
+function handleROM(file) {
+  if(!file) return;
+  log('Loading: ' + file.name + ' (' + (file.size/1048576).toFixed(1) + 'MB)');
+  document.getElementById('splash').classList.add('hidden');
+  document.getElementById('loader').classList.remove('hidden');
+  document.getElementById('loaderText').textContent = 'Reading ' + file.name + '...';
 
-  // ---- ROM Loading ----
-  function loadROM(file) {
-    if (!file) return;
-    log('Loading ROM: ' + file.name + ' (' + (file.size / 1048576).toFixed(1) + 'MB)');
-    document.getElementById('splash').classList.add('hidden');
-    document.getElementById('loading').classList.remove('hidden');
-    document.getElementById('loadingText').textContent = 'Loading ' + file.name + '...';
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const data = new Uint8Array(e.target.result);
-      log('ROM loaded: ' + data.length + ' bytes');
-      document.getElementById('loadingText').textContent = 'Starting emulator...';
-      // TODO: Pass ROM data to Dolphin WASM module
-      // For now, the preloaded ROM is used
-      startEmulator();
-    };
-    reader.readAsArrayBuffer(file);
-  }
-
-  // ---- Drag & Drop ----
-  const dropZone = document.getElementById('dropZone');
-  document.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-  document.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-  document.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    if (e.dataTransfer.files.length > 0) loadROM(e.dataTransfer.files[0]);
-  });
-
-  // ---- Controller ----
-  async function connectController() {
-    if (!navigator.bluetooth) {
-      log('Web Bluetooth not available');
-      return;
-    }
-    log('Opening Bluetooth picker...');
-    try {
-      const device = await navigator.bluetooth.requestDevice({
-        filters: [{ manufacturerData: [{ companyIdentifier: 0x0553 }] }],
-        optionalServices: [
-          '00c5af5d-1964-4e30-8f51-1956f96bd280',
-          'ab7de9be-89fe-49ad-828f-118f09df7fd0',
-        ],
-      });
-      log('Connected: ' + (device.name || 'Controller'));
-      document.getElementById('controllerBtn').textContent = 'Connected';
-      document.getElementById('controllerBtn').style.color = 'var(--green)';
-      // TODO: Wire into Dolphin's input system
-    } catch (err) {
-      if (err.name !== 'NotFoundError') log('BT error: ' + err.message);
-    }
-  }
-
-  // ---- Emulator ----
-  function startEmulator() {
-    // Show on-screen controls on mobile
-    if (window.innerWidth <= 768) {
-      document.getElementById('onScreenControls').classList.add('active');
-    }
-
-    // The Emscripten module handles everything
-    document.getElementById('loading').classList.add('hidden');
-    log('Emulator started');
-  }
-
-  // ---- Emscripten Module ----
-  var Module = {
-    canvas: document.getElementById('canvas'),
-    print: function(text) { log(text); },
-    printErr: function(text) { log('[ERR] ' + text); },
-    onRuntimeInitialized: function() {
-      log('WASM runtime ready');
-    },
-    arguments: ['-e', '/rom/game.rvz', '-p', 'headless', '-u', '/dolphin-data/User'],
-    preRun: [function() {
-      log('Mounting filesystem...');
-    }],
-    postRun: [function() {
-      // Hide splash, show game
-      document.getElementById('splash').classList.add('hidden');
-      document.getElementById('loading').classList.add('hidden');
-      if (window.innerWidth <= 768) {
-        document.getElementById('onScreenControls').classList.add('active');
-      }
-    }],
+  const reader = new FileReader();
+  reader.onprogress = e => {
+    if(e.lengthComputable) document.getElementById('loaderText').textContent = 'Reading... ' + Math.round(e.loaded/e.total*100) + '%';
   };
+  reader.onload = e => {
+    const data = new Uint8Array(e.target.result);
+    log('ROM: ' + data.length + ' bytes');
+    document.getElementById('loaderText').textContent = 'Starting emulator...';
+
+    // Write ROM to Emscripten VFS
+    if(typeof FS !== 'undefined') {
+      try { FS.mkdir('/rom'); } catch(e) {}
+      FS.writeFile('/rom/game.' + file.name.split('.').pop(), data);
+      log('ROM written to VFS');
+      bootEmulator('/rom/game.' + file.name.split('.').pop());
+    } else {
+      log('Emscripten FS not ready, loading WASM first...');
+      window._pendingROM = { data: data, ext: file.name.split('.').pop() };
+      loadWasm();
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function bootEmulator(romPath) {
+  document.getElementById('loaderText').textContent = 'Booting...';
+  // TODO: Call Dolphin's boot function with the ROM path
+  // For now, the Module.arguments are set at load time
+  log('Boot path: ' + romPath);
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+    if(window.innerWidth <= 768) document.getElementById('osc').classList.add('active');
+  }, 2000);
+}
+
+function loadWasm() {
+  // Load the Emscripten module
+  var script = document.createElement('script');
+  script.src = 'dolphin-emu-nogui.js';
+  document.body.appendChild(script);
+}
+
+async function connectController() {
+  if(!navigator.bluetooth) { log('Web Bluetooth not available'); return; }
+  try {
+    const dev = await navigator.bluetooth.requestDevice({
+      filters: [{ manufacturerData: [{ companyIdentifier: 0x0553 }] }],
+      optionalServices: ['00c5af5d-1964-4e30-8f51-1956f96bd280','ab7de9be-89fe-49ad-828f-118f09df7fd0'],
+    });
+    log('Connected: ' + (dev.name || 'Controller'));
+    const btn = document.getElementById('ctrlBtn');
+    btn.textContent = '🎮 ' + (dev.name || 'Connected');
+    btn.classList.add('nav-btn-connected');
+  } catch(e) { if(e.name !== 'NotFoundError') log('BT: ' + e.message); }
+}
+
+function toggleSettings() {
+  const c = document.getElementById('settingsCard');
+  c.style.display = c.style.display === 'none' ? 'block' : 'none';
+}
+
+// Emscripten Module config
+var Module = {
+  canvas: document.getElementById('canvas'),
+  print: log,
+  printErr: function(t) { log('[err] ' + t); },
+  onRuntimeInitialized: function() {
+    log('WASM runtime ready');
+    if(window._pendingROM) {
+      try { FS.mkdir('/rom'); } catch(e) {}
+      FS.writeFile('/rom/game.' + window._pendingROM.ext, window._pendingROM.data);
+      log('ROM written to VFS');
+      window._pendingROM = null;
+    }
+  },
+  noInitialRun: true, // Don't auto-run, wait for ROM
+  arguments: [],
+};
 </script>
-<script src="dolphin-emu-nogui.js"></script>
 </body>
 </html>
