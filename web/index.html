@@ -243,13 +243,17 @@ function setAspect(v){
   s.classList.remove('wide','classic');
   s.classList.add(v);
   document.querySelectorAll('.nav-r .p')[1].textContent=v==='wide'?'16:9':'4:3';
-  // Write GFX config for Dolphin
-  if(typeof FS!=='undefined'){
-    try{FS.mkdir('/dolphin-data/User/Config')}catch(x){}
-    var wide=v==='wide'?'True':'False';
-    var cfg='[Settings]\nwideScreenHack = '+wide+'\nAspectRatio = '+(v==='wide'?'3':'0')+'\n';
-    FS.writeFile('/dolphin-data/User/Config/GFX.ini',cfg);
-  }
+}
+
+function writeGfxConfig(){
+  if(typeof FS==='undefined')return;
+  try{FS.mkdir('/dolphin-data')}catch(x){}
+  try{FS.mkdir('/dolphin-data/User')}catch(x){}
+  try{FS.mkdir('/dolphin-data/User/Config')}catch(x){}
+  var wide=aspect==='wide';
+  // AspectRatio: 0=Auto, 1=Force16:9, 2=Force4:3, 3=Stretch
+  var cfg='[Settings]\nwideScreenHack = '+(wide?'True':'False')+'\nAspectRatio = '+(wide?'1':'2')+'\n';
+  FS.writeFile('/dolphin-data/User/Config/GFX.ini',cfg);
 }
 function toggleAspect(){setAspect(aspect==='classic'?'wide':'classic');document.getElementById('optAR').value=aspect}
 
@@ -306,6 +310,7 @@ function handleROM(file){
 function bootEmu(path){
   document.getElementById('lText').textContent='Booting...';
   log('Boot: '+path);
+  writeGfxConfig();
   Module.callMain(['-e',path,'-p','headless','-u','/dolphin-data/User']);
   window._emuReady=true;
   document.getElementById('loader').classList.add('out');
@@ -345,6 +350,7 @@ var Module={
       log('ROM written to VFS: '+p);
       window._rom=null;
       log('Calling main()...');
+      writeGfxConfig();
       Module.callMain(['-e',p,'-p','headless','-u','/dolphin-data/User']);
       window._emuReady=true;
       document.getElementById('loader').classList.add('out');
