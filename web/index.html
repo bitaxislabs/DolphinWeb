@@ -115,13 +115,13 @@ button,select{font-family:var(--f);cursor:pointer}
 
 /* Main stick (left, upper area) */
 .osc-lstick{bottom:100px;left:16px;width:100px;height:100px}
-/* C-stick (right, below face buttons) */
-.osc-cstick{bottom:16px;right:50px;width:65px;height:65px}
+/* C-stick (right, below face buttons, symmetric with dpad) */
+.osc-cstick{bottom:14px;right:36px;width:65px;height:65px}
 .osc-cstick .vstick-knob{background:rgba(251,191,36,0.12);border-color:rgba(251,191,36,0.2)}
 .vstick-label{display:none}
 
-/* D-pad (bottom left, below stick) */
-.osc-dpad{position:absolute;bottom:10px;left:20px;width:80px;height:80px;pointer-events:auto;touch-action:none}
+/* D-pad (bottom left) */
+.osc-dpad{position:absolute;bottom:14px;left:36px;width:80px;height:80px;pointer-events:auto;touch-action:none}
 .osc-d{position:absolute;width:26px;height:26px;border-radius:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,0.15);touch-action:none}
 .osc-d:active{background:rgba(255,255,255,0.12)}
 .osc-d.u{top:0;left:27px}.osc-d.d{bottom:0;left:27px}.osc-d.l{top:27px;left:0}.osc-d.r{top:27px;right:0}
@@ -147,7 +147,8 @@ button,select{font-family:var(--f);cursor:pointer}
 
 /* Start */
 .osc-start{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);pointer-events:auto}
-.osc-start div{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:rgba(255,255,255,0.12);background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:100px;padding:5px 16px;touch-action:none}
+.osc-start div{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);touch-action:none}
+.osc-start div:active{background:rgba(255,255,255,0.12)}
 
 /* ---- Console ---- */
 .con-t{flex-shrink:0;width:100%;padding:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));text-align:center;font-size:11px;font-weight:600;color:var(--dim);background:var(--s1);border:none;border-top:1px solid var(--border);font-family:var(--f);z-index:60;position:relative}
