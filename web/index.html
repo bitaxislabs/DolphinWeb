@@ -24,8 +24,6 @@ button,select{font-family:var(--f);cursor:pointer}
 /* ---- Nav ---- */
 .nav{display:flex;justify-content:space-between;align-items:center;height:48px;padding:0 20px;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0;z-index:50}
 .nav-l{display:flex;align-items:center;gap:10px}
-.nav-icon{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(99,91,255,0.25)}
-.nav-icon svg{width:14px;height:14px;fill:#fff}
 .nav-name{font-size:14px;font-weight:700;letter-spacing:-0.4px}
 .nav-r{display:flex;align-items:center;gap:6px}
 .p{font-size:11px;font-weight:600;padding:5px 14px;border-radius:100px;border:none;transition:all 0.15s}
@@ -65,10 +63,8 @@ button,select{font-family:var(--f);cursor:pointer}
 .s-inner>*:nth-child(6){animation-delay:0.6s}
 @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 
-.s-badge{display:flex;align-items:center;gap:8px;padding:6px 14px 6px 8px;background:var(--ghost);border:1px solid var(--border);border-radius:100px;margin-bottom:24px}
-.s-badge-dot{width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center}
-.s-badge-dot svg{width:10px;height:10px;fill:#fff}
-.s-badge-text{font-size:12px;font-weight:600;color:var(--dim)}
+.s-badge{padding:6px 16px;background:var(--ghost);border:1px solid var(--border);border-radius:100px;margin-bottom:24px}
+.s-badge-text{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.3px}
 
 .s-h{font-size:40px;font-weight:800;letter-spacing:-2px;margin-bottom:8px;text-align:center;line-height:1.1}
 .s-h em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -168,7 +164,6 @@ button,select{font-family:var(--f);cursor:pointer}
 <div id="app">
   <nav class="nav">
     <div class="nav-l">
-      <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
       <span class="nav-name">Dolphin for Web</span>
     </div>
     <div class="nav-r">
@@ -184,7 +179,6 @@ button,select{font-family:var(--f);cursor:pointer}
       <div class="s-bg"><div class="s-orb a"></div><div class="s-orb b"></div><div class="s-orb c"></div></div>
       <div class="s-inner">
         <div class="s-badge">
-          <div class="s-badge-dot"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
           <span class="s-badge-text">Powered by WebAssembly</span>
         </div>
         <h1 class="s-h">Dolphin <em>for Web</em></h1>
