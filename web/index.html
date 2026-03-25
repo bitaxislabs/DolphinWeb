@@ -81,6 +81,7 @@ button,select{font-family:var(--f);cursor:pointer}
 
 /* Options */
 .opts{width:100%;margin-top:16px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1) both}
+.opt-group{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);padding:10px 16px 4px;border-bottom:none}
 .opt{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border)}
 .opt:last-child{border-bottom:none}
 .opt-l{font-size:13px;font-weight:500;color:var(--dim)}
@@ -101,25 +102,50 @@ button,select{font-family:var(--f);cursor:pointer}
 .l-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:100px;transition:width 0.3s}
 .l-text{font-size:13px;color:var(--dim)}
 
-/* ---- OSC ---- */
+/* ---- OSC (GameCube layout) ---- */
 .osc{display:none;position:absolute;inset:0;z-index:8;pointer-events:none}
 .osc.on{display:block}
-.osc-pad{position:absolute;bottom:20px;left:20px;width:110px;height:110px;pointer-events:auto;touch-action:none}
-.osc-d{position:absolute;width:34px;height:34px;border-radius:7px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(255,255,255,0.2);touch-action:none;transition:background 0.08s}
-.osc-d:active{background:rgba(255,255,255,0.15)}
-.osc-d.u{top:0;left:38px}.osc-d.d{bottom:0;left:38px}.osc-d.l{top:38px;left:0}.osc-d.r{top:38px;right:0}
-.osc-f{position:absolute;bottom:20px;right:20px;width:110px;height:110px;pointer-events:auto;touch-action:none}
-.osc-b{position:absolute;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;touch-action:none;transition:filter 0.08s}
-.osc-b:active{filter:brightness(2)}
-.osc-b.a{bottom:0;left:36px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.18);color:rgba(52,211,153,0.45)}
-.osc-b.b{left:0;bottom:36px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.18);color:rgba(248,113,113,0.45)}
-.osc-b.x{right:0;bottom:36px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.18);color:rgba(96,165,250,0.45)}
-.osc-b.y{top:0;left:36px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.18);color:rgba(251,191,36,0.45)}
-.osc-sh{position:absolute;top:6px;left:0;right:0;display:flex;justify-content:space-between;padding:0 14px;pointer-events:auto}
-.osc-sh div{font-size:10px;font-weight:700;color:rgba(255,255,255,0.18);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:6px;padding:7px 22px;touch-action:none}
-.osc-sh div:active{background:rgba(255,255,255,0.1)}
-.osc-m{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:10px;pointer-events:auto}
-.osc-m div{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:100px;padding:5px 14px;touch-action:none}
+
+/* Virtual stick */
+.vstick{position:absolute;pointer-events:auto;touch-action:none}
+.vstick-base{width:100%;height:100%;border-radius:50%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)}
+.vstick-knob{position:absolute;width:40%;height:40%;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);top:30%;left:30%;transition:none;pointer-events:none}
+.vstick-label{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:600;color:rgba(255,255,255,0.15);text-transform:uppercase;letter-spacing:0.5px;pointer-events:none}
+
+/* Main stick (left) */
+.osc-lstick{bottom:16px;left:16px;width:100px;height:100px}
+/* C-stick (right, smaller) */
+.osc-cstick{bottom:16px;right:140px;width:70px;height:70px}
+.osc-cstick .vstick-knob{background:rgba(251,191,36,0.12);border-color:rgba(251,191,36,0.2)}
+
+/* D-pad (above main stick) */
+.osc-dpad{position:absolute;bottom:130px;left:20px;width:80px;height:80px;pointer-events:auto;touch-action:none}
+.osc-d{position:absolute;width:26px;height:26px;border-radius:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,0.15);touch-action:none}
+.osc-d:active{background:rgba(255,255,255,0.12)}
+.osc-d.u{top:0;left:27px}.osc-d.d{bottom:0;left:27px}.osc-d.l{top:27px;left:0}.osc-d.r{top:27px;right:0}
+
+/* Face buttons (GC layout: big A center, B left, X right, Y top) */
+.osc-face{position:absolute;bottom:30px;right:16px;width:110px;height:110px;pointer-events:auto;touch-action:none}
+.osc-btn{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;touch-action:none;transition:filter 0.06s}
+.osc-btn:active{filter:brightness(2)}
+/* A - big green center */
+.osc-btn.a{width:48px;height:48px;bottom:16px;left:31px;font-size:14px;background:rgba(52,211,153,0.1);border:1.5px solid rgba(52,211,153,0.25);color:rgba(52,211,153,0.5)}
+/* B - small red left */
+.osc-btn.b{width:30px;height:30px;bottom:4px;left:0;font-size:10px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:rgba(248,113,113,0.45)}
+/* X - right of A */
+.osc-btn.x{width:30px;height:30px;bottom:28px;right:0;font-size:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
+/* Y - top of A */
+.osc-btn.y{width:30px;height:30px;top:0;left:40px;font-size:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
+
+/* Triggers */
+.osc-triggers{position:absolute;top:8px;left:0;right:0;display:flex;justify-content:space-between;padding:0 12px;pointer-events:auto}
+.osc-trig{font-size:10px;font-weight:700;color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:6px;padding:6px 18px;touch-action:none}
+.osc-trig:active{background:rgba(255,255,255,0.1)}
+.osc-trig.z{background:rgba(99,91,255,0.06);border-color:rgba(99,91,255,0.12);color:rgba(99,91,255,0.3)}
+
+/* Start */
+.osc-start{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);pointer-events:auto}
+.osc-start div{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:rgba(255,255,255,0.12);background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:100px;padding:5px 16px;touch-action:none}
 
 /* ---- Console ---- */
 .con-t{flex-shrink:0;width:100%;padding:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));text-align:center;font-size:11px;font-weight:600;color:var(--dim);background:var(--s1);border:none;border-top:1px solid var(--border);font-family:var(--f);z-index:60;position:relative}
@@ -184,6 +210,7 @@ button,select{font-family:var(--f);cursor:pointer}
         </div>
 
         <div class="opts" id="settingsPanel" style="display:none">
+          <div class="opt-group">Performance</div>
           <div class="opt">
             <span class="opt-l">CPU Backend</span>
             <select class="opt-v" id="optCpu">
@@ -198,6 +225,7 @@ button,select{font-family:var(--f);cursor:pointer}
               <option value="sw" selected>Software</option>
             </select>
           </div>
+          <div class="opt-group">Display</div>
           <div class="opt">
             <span class="opt-l">Aspect Ratio</span>
             <select class="opt-v" id="optAR" onchange="setAspect(this.value)">
@@ -208,13 +236,14 @@ button,select{font-family:var(--f);cursor:pointer}
           <div class="opt">
             <span class="opt-l">Internal Resolution</span>
             <select class="opt-v" disabled>
-              <option selected>1x Native (640x528)</option>
-              <option disabled>2x (1280x1056)</option>
-              <option disabled>3x (1920x1584)</option>
+              <option selected>1x Native</option>
+              <option disabled>2x</option>
+              <option disabled>3x</option>
             </select>
           </div>
-          <div class="opt">
-            <span class="opt-l">Audio</span>
+          <div class="opt-group">Audio</div>
+          <div class="opt" style="border-bottom:none">
+            <span class="opt-l">Output</span>
             <select class="opt-v" disabled>
               <option selected>Off</option>
               <option disabled>WebAudio</option>
@@ -232,10 +261,21 @@ button,select{font-family:var(--f);cursor:pointer}
     </div>
 
     <div class="osc" id="osc">
-      <div class="osc-sh"><div>L</div><div>R</div></div>
-      <div class="osc-pad"><div class="osc-d u">&#9650;</div><div class="osc-d d">&#9660;</div><div class="osc-d l">&#9664;</div><div class="osc-d r">&#9654;</div></div>
-      <div class="osc-f"><div class="osc-b a">A</div><div class="osc-b b">B</div><div class="osc-b x">X</div><div class="osc-b y">Y</div></div>
-      <div class="osc-m"><div>START</div><div>Z</div></div>
+      <div class="osc-triggers">
+        <div class="osc-trig" data-btn="L">L</div>
+        <div class="osc-trig z" data-btn="z">Z</div>
+        <div class="osc-trig" data-btn="R">R</div>
+      </div>
+      <div class="vstick osc-lstick" id="stickL"><div class="vstick-base"></div><div class="vstick-knob" id="knobL"></div><div class="vstick-label">Stick</div></div>
+      <div class="osc-dpad"><div class="osc-d u" data-btn="u">&#9650;</div><div class="osc-d d" data-btn="d">&#9660;</div><div class="osc-d l" data-btn="l">&#9664;</div><div class="osc-d r" data-btn="r">&#9654;</div></div>
+      <div class="osc-face">
+        <div class="osc-btn a" data-btn="a">A</div>
+        <div class="osc-btn b" data-btn="b">B</div>
+        <div class="osc-btn x" data-btn="x">X</div>
+        <div class="osc-btn y" data-btn="y">Y</div>
+      </div>
+      <div class="vstick osc-cstick" id="stickR"><div class="vstick-base"></div><div class="vstick-knob" id="knobR"></div><div class="vstick-label">C-Stick</div></div>
+      <div class="osc-start"><div data-btn="start">START</div></div>
     </div>
   </div>
 
@@ -415,50 +455,74 @@ if(!navigator.bluetooth){
   document.getElementById('ctrlBtn').style.display='none';
 }
 
-// On-screen touch controls
+// On-screen touch controls with virtual analog sticks
 (function(){
   var pressed={};
+  var stickLX=0,stickLY=0,stickRX=0,stickRY=0;
   var btnMap={
     'u':0x02000000,'d':0x01000000,'l':0x08000000,'r':0x04000000,
-    'a':0x00000800,'b':0x00000400,'x':0x00000200,'y':0x00000100
+    'a':0x00000800,'b':0x00000400,'x':0x00000200,'y':0x00000100,
+    'start':0x00020000,'z':0x00008000,'L':0x40000000,'R':0x00004000
   };
-  function updateOSC(){
+
+  function sendInput(){
     if(!window._emuReady)return;
     var buttons=0;
     for(var k in pressed)if(pressed[k])buttons|=(btnMap[k]||0);
-    // START and Z
-    if(pressed['start'])buttons|=0x00020000;
-    if(pressed['z'])buttons|=0x00008000;
-    // L and R
     var tl=pressed['L']?255:0;
     var tr=pressed['R']?255:0;
-    if(pressed['L'])buttons|=0x40000000;
-    if(pressed['R'])buttons|=0x00004000;
-    try{Module._dolphin_set_controller_state(0,buttons>>>0,0,0,0,0,tl,tr)}catch(e){}
+    try{Module._dolphin_set_controller_state(0,buttons>>>0,stickLX,stickLY,stickRX,stickRY,tl,tr)}catch(e){}
   }
-  function bind(sel,key){
-    document.querySelectorAll(sel).forEach(function(el){
-      el.addEventListener('touchstart',function(e){e.preventDefault();pressed[key]=true;updateOSC()},{passive:false});
-      el.addEventListener('touchend',function(e){e.preventDefault();pressed[key]=false;updateOSC()},{passive:false});
-      el.addEventListener('touchcancel',function(e){pressed[key]=false;updateOSC()});
+
+  // Bind all buttons with data-btn attribute
+  document.querySelectorAll('[data-btn]').forEach(function(el){
+    var key=el.getAttribute('data-btn');
+    el.addEventListener('touchstart',function(e){e.preventDefault();pressed[key]=true;sendInput()},{passive:false});
+    el.addEventListener('touchend',function(e){e.preventDefault();pressed[key]=false;sendInput()},{passive:false});
+    el.addEventListener('touchcancel',function(){pressed[key]=false;sendInput()});
+  });
+
+  // Virtual stick handler
+  function initStick(stickEl, knobEl, onMove){
+    var rect, cx, cy, maxR;
+    stickEl.addEventListener('touchstart',function(e){
+      e.preventDefault();
+      rect=stickEl.getBoundingClientRect();
+      cx=rect.left+rect.width/2;
+      cy=rect.top+rect.height/2;
+      maxR=rect.width/2*0.45;
+      handleMove(e.touches[0]);
+    },{passive:false});
+    stickEl.addEventListener('touchmove',function(e){
+      e.preventDefault();
+      handleMove(e.touches[0]);
+    },{passive:false});
+    stickEl.addEventListener('touchend',function(e){
+      e.preventDefault();
+      knobEl.style.transform='translate(0,0)';
+      onMove(0,0);
+      sendInput();
+    },{passive:false});
+    stickEl.addEventListener('touchcancel',function(){
+      knobEl.style.transform='translate(0,0)';
+      onMove(0,0);
+      sendInput();
     });
+    function handleMove(touch){
+      var dx=touch.clientX-cx;
+      var dy=touch.clientY-cy;
+      var dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist>maxR){dx=dx/dist*maxR;dy=dy/dist*maxR;dist=maxR}
+      knobEl.style.transform='translate('+dx+'px,'+dy+'px)';
+      var nx=Math.round(dx/maxR*32767);
+      var ny=Math.round(-dy/maxR*32767); // invert Y
+      onMove(nx,ny);
+      sendInput();
+    }
   }
-  bind('.osc-d.u','u');bind('.osc-d.d','d');bind('.osc-d.l','l');bind('.osc-d.r','r');
-  bind('.osc-b.a','a');bind('.osc-b.b','b');bind('.osc-b.x','x');bind('.osc-b.y','y');
-  // Shoulder buttons
-  document.querySelectorAll('.osc-sh div').forEach(function(el,i){
-    var key=i===0?'L':'R';
-    el.addEventListener('touchstart',function(e){e.preventDefault();pressed[key]=true;updateOSC()},{passive:false});
-    el.addEventListener('touchend',function(e){e.preventDefault();pressed[key]=false;updateOSC()},{passive:false});
-    el.addEventListener('touchcancel',function(e){pressed[key]=false;updateOSC()});
-  });
-  // START and Z
-  document.querySelectorAll('.osc-m div').forEach(function(el,i){
-    var key=i===0?'start':'z';
-    el.addEventListener('touchstart',function(e){e.preventDefault();pressed[key]=true;updateOSC()},{passive:false});
-    el.addEventListener('touchend',function(e){e.preventDefault();pressed[key]=false;updateOSC()},{passive:false});
-    el.addEventListener('touchcancel',function(e){pressed[key]=false;updateOSC()});
-  });
+
+  initStick(document.getElementById('stickL'),document.getElementById('knobL'),function(x,y){stickLX=x;stickLY=y});
+  initStick(document.getElementById('stickR'),document.getElementById('knobR'),function(x,y){stickRX=x;stickRY=y});
 })();
 
 // Global error handler to catch WASM/thread issues
