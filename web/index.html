@@ -43,7 +43,7 @@ button,select{font-family:var(--f);cursor:pointer}
 .stage.classic #canvas{aspect-ratio:4/3;max-width:100%;max-height:100%;width:auto;height:auto}
 
 /* ---- Splash ---- */
-.splash{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:opacity 0.5s;opacity:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 0}
+.splash{position:absolute;inset:0;z-index:10;display:flex;align-items:flex-start;justify-content:center;background:var(--bg);transition:opacity 0.5s;opacity:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:40px 0 40px}
 .splash.out{opacity:0;pointer-events:none}
 
 .s-bg{position:absolute;inset:0;overflow:hidden}
@@ -90,7 +90,6 @@ button,select{font-family:var(--f);cursor:pointer}
 .opt:last-child{border-bottom:none}
 .opt-l{font-size:13px;font-weight:500;color:var(--dim)}
 .opt-v{font-size:12px;font-weight:600;color:var(--text);background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:5px 28px 5px 10px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 8 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23555' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
-.opt-tag{font-size:10px;font-weight:600;color:var(--accent);background:var(--accent-soft,rgba(99,91,255,0.1));border-radius:4px;padding:2px 6px;margin-left:6px}
 
 .s-foot{margin-top:36px;font-size:11px;color:var(--muted);opacity:0.35}
 .s-foot a{color:inherit;text-decoration:none}
@@ -129,6 +128,7 @@ button,select{font-family:var(--f);cursor:pointer}
 .con-e{padding:6px 10px;max-height:110px;overflow-y:auto;font-family:var(--mono);font-size:10px;line-height:1.5;color:var(--muted);white-space:pre-wrap}
 
 @media(max-width:768px){
+  .con-t,.con-p{display:none}
   .osc.on{display:block}
   .nav{height:40px;padding:0 12px}
   .nav-name{font-size:12px}
@@ -202,7 +202,6 @@ button,select{font-family:var(--f);cursor:pointer}
                 <option value="6" disabled>WASM JIT</option>
                 <option value="5" selected>Interpreter</option>
               </select>
-              <span class="opt-tag" id="cpuTag">Default</span>
             </div>
           </div>
           <div class="opt">
@@ -288,12 +287,6 @@ document.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('ov
 document.addEventListener('dragleave',()=>dz.classList.remove('over'));
 document.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files.length)handleROM(e.dataTransfer.files[0])});
 
-document.getElementById('optCpu').addEventListener('change',function(){
-  const t=document.getElementById('cpuTag');
-  t.textContent=this.value==='5'?'Default':this.value==='6'?'Experimental':'Slow';
-  t.style.color=this.value==='6'?'var(--yellow)':this.value==='0'?'var(--red)':'var(--accent)';
-  t.style.background=this.value==='6'?'rgba(251,191,36,0.1)':this.value==='0'?'rgba(248,113,113,0.1)':'rgba(99,91,255,0.1)';
-});
 
 function handleROM(file){
   if(!file)return;
@@ -415,8 +408,13 @@ var Module={
 })();
 </script>
 <script>
-// Hide controller button if no Web Bluetooth
-if(!navigator.bluetooth) document.getElementById('ctrlBtn').style.display='none';
+// Hide controller button and limit to 1 player if no Web Bluetooth
+if(!navigator.bluetooth){
+  document.getElementById('ctrlBtn').style.display='none';
+  var ps=document.getElementById('optPorts');
+  ps.innerHTML='<option value="1" selected>1 Player</option>';
+  ps.disabled=true;
+}
 
 // On-screen touch controls
 (function(){
