@@ -111,15 +111,17 @@ button,select{font-family:var(--f);cursor:pointer}
 /* Virtual stick */
 .vstick{position:absolute;pointer-events:auto;touch-action:none}
 .vstick-base{width:100%;height:100%;border-radius:50%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)}
-.vstick-knob{position:absolute;width:40%;height:40%;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);top:30%;left:30%;transition:none;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.03)}
-.vstick-knob::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60%;height:60%;background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08) 2px, transparent 2px),radial-gradient(circle at 70% 30%, rgba(255,255,255,0.08) 2px, transparent 2px),radial-gradient(circle at 50% 65%, rgba(255,255,255,0.08) 2px, transparent 2px);border-radius:50%}
+.vstick-knob{position:absolute;width:40%;height:40%;border-radius:50%;background:transparent;border:1.5px solid rgba(255,255,255,0.12);top:30%;left:30%;transition:none;pointer-events:none}
+.vstick-knob::before{content:'';position:absolute;top:15%;left:15%;width:70%;height:70%;border-radius:50%;border:1px solid rgba(255,255,255,0.08)}
+.vstick-knob::after{content:'';position:absolute;top:30%;left:30%;width:40%;height:40%;border-radius:50%;border:1px solid rgba(255,255,255,0.06)}
 .vstick-label{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:600;color:rgba(255,255,255,0.15);text-transform:uppercase;letter-spacing:0.5px;pointer-events:none}
 
 /* Main stick (left, upper area) */
 .osc-lstick{bottom:120px;left:14px;width:120px;height:120px}
 /* C-stick (right, below face buttons, symmetric with dpad) */
 .osc-cstick{bottom:16px;right:60px;width:75px;height:75px}
-.osc-cstick .vstick-knob{background:rgba(251,191,36,0.12);border-color:rgba(251,191,36,0.2)}
+.osc-cstick .vstick-knob{background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.2);box-shadow:none}
+.osc-cstick .vstick-knob::before,.osc-cstick .vstick-knob::after{display:none}
 .vstick-label{display:none}
 
 /* D-pad (bottom left) */
@@ -136,10 +138,10 @@ button,select{font-family:var(--f);cursor:pointer}
 .osc-btn.a{width:56px;height:56px;bottom:14px;left:37px;font-size:16px;background:rgba(52,211,153,0.1);border:1.5px solid rgba(52,211,153,0.25);color:rgba(52,211,153,0.5)}
 /* B - small red left */
 .osc-btn.b{width:36px;height:36px;bottom:2px;left:0;font-size:12px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:rgba(248,113,113,0.45)}
-/* X - bean wrapping right side of A */
-.osc-btn.x{width:32px;height:46px;bottom:22px;right:0;font-size:11px;border-radius:16px 20px 20px 8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
-/* Y - bean wrapping top of A */
-.osc-btn.y{width:46px;height:32px;top:4px;left:32px;font-size:11px;border-radius:20px 16px 8px 20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
+/* X - tall kidney bean, concave on left (inner) side */
+.osc-btn.x{width:24px;height:44px;bottom:20px;right:2px;font-size:10px;border-radius:40% 50% 50% 40% / 50% 50% 50% 50%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
+/* Y - wide kidney bean, concave on bottom (inner) side */
+.osc-btn.y{width:44px;height:24px;top:6px;left:34px;font-size:10px;border-radius:50% 50% 40% 40% / 50% 50% 50% 50%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
 
 /* Triggers - near the controls, not at top */
 /* L and R at top of control area */
