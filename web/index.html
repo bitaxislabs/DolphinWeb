@@ -91,6 +91,11 @@ button,select{font-family:var(--f);cursor:pointer}
 .opt-l{font-size:13px;font-weight:500;color:var(--dim)}
 .opt-v{font-size:12px;font-weight:600;color:var(--text);background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:5px 28px 5px 10px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 8 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23555' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
 
+.menu-actions{width:100%;display:flex;gap:8px;margin-top:16px}
+.menu-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;font-family:var(--f);font-size:13px;font-weight:600;color:var(--dim);background:var(--ghost);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;transition:all 0.15s}
+.menu-btn:hover{background:rgba(255,255,255,0.06);color:var(--text);border-color:rgba(255,255,255,0.1)}
+.menu-btn svg{flex-shrink:0;opacity:0.5}
+
 .s-foot{margin-top:36px;font-size:11px;color:var(--muted);opacity:0.35}
 .s-foot a{color:inherit;text-decoration:none}
 
@@ -167,11 +172,7 @@ button,select{font-family:var(--f);cursor:pointer}
       <span class="nav-name">Dolphin for Web</span>
     </div>
     <div class="nav-r">
-      <span class="nav-fps" id="fps"></span>
-      <button class="p p-g" id="ctrlBtn" onclick="connectCtrl()">Controller</button>
-      <button class="p p-g" onclick="toggleAspect()">4:3</button>
-      <button class="p p-a" onclick="document.getElementById('rf').click()">Load ROM</button>
-      <input type="file" id="rf" accept=".iso,.gcm,.rvz,.gcz,.wbfs,.wad,.dol,.elf" style="display:none" onchange="handleROM(this.files[0])">
+      <button class="p p-g" id="menuBtn" style="display:none" onclick="exitToMenu()">Menu</button>
     </div>
   </nav>
 
@@ -193,16 +194,26 @@ button,select{font-family:var(--f);cursor:pointer}
           <div class="drop-t">Select or drop a ROM</div>
           <div class="drop-h">.iso .gcm .rvz .gcz .wbfs .wad</div>
         </div>
+        <input type="file" id="rf" accept=".iso,.gcm,.rvz,.gcz,.wbfs,.wad,.dol,.elf" style="display:none" onchange="handleROM(this.files[0])">
 
-        <div class="opts">
+        <div class="menu-actions">
+          <button class="menu-btn" id="ctrlBtn" onclick="connectCtrl()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="3"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="1"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="3" y1="12" x2="9" y2="12"/></svg>
+            <span>Connect Controller</span>
+          </button>
+          <button class="menu-btn" onclick="toggleSettings()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            <span>Settings</span>
+          </button>
+        </div>
+
+        <div class="opts" id="settingsPanel" style="display:none">
           <div class="opt">
             <span class="opt-l">CPU Backend</span>
-            <div style="display:flex;align-items:center">
-              <select class="opt-v" id="optCpu">
-                <option value="6" disabled>WASM JIT</option>
-                <option value="5" selected>Interpreter</option>
-              </select>
-            </div>
+            <select class="opt-v" id="optCpu">
+              <option value="6" disabled>WASM JIT</option>
+              <option value="5" selected>Interpreter</option>
+            </select>
           </div>
           <div class="opt">
             <span class="opt-l">Renderer</span>
@@ -216,6 +227,21 @@ button,select{font-family:var(--f);cursor:pointer}
             <select class="opt-v" id="optAR" onchange="setAspect(this.value)">
               <option value="classic" selected>4:3</option>
               <option value="wide">16:9</option>
+            </select>
+          </div>
+          <div class="opt">
+            <span class="opt-l">Internal Resolution</span>
+            <select class="opt-v" disabled>
+              <option selected>1x Native (640x528)</option>
+              <option disabled>2x (1280x1056)</option>
+              <option disabled>3x (1920x1584)</option>
+            </select>
+          </div>
+          <div class="opt">
+            <span class="opt-l">Audio</span>
+            <select class="opt-v" disabled>
+              <option selected>Off</option>
+              <option disabled>WebAudio</option>
             </select>
           </div>
         </div>
@@ -251,7 +277,22 @@ function setAspect(v){
   const s=document.getElementById('stage');
   s.classList.remove('wide','classic');
   s.classList.add(v);
-  document.querySelectorAll('.nav-r .p')[1].textContent=v==='wide'?'16:9':'4:3';
+}
+
+function toggleSettings(){
+  var p=document.getElementById('settingsPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+
+function exitToMenu(){
+  window.location.reload();
+}
+
+function showGameUI(){
+  document.getElementById('menuBtn').style.display='';
+  document.getElementById('splash').classList.add('out');
+  document.getElementById('loader').classList.add('out');
+  if(window.innerWidth<=768)document.getElementById('osc').classList.add('on');
 }
 
 function writeGfxConfig(){
@@ -264,7 +305,6 @@ function writeGfxConfig(){
   var cfg='[Settings]\nwideScreenHack = '+(wide?'True':'False')+'\nAspectRatio = '+(wide?'1':'2')+'\n';
   FS.writeFile('/dolphin-data/User/Config/GFX.ini',cfg);
 }
-function toggleAspect(){setAspect(aspect==='classic'?'wide':'classic');document.getElementById('optAR').value=aspect}
 
 const dz=document.getElementById('dz');
 document.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
@@ -316,8 +356,7 @@ function bootEmu(path){
   writeGfxConfig();
   Module.callMain(['-e',path,'-p','headless','-u','/dolphin-data/User']);
   window._emuReady=true;
-  document.getElementById('loader').classList.add('out');
-  if(window.innerWidth<=768)document.getElementById('osc').classList.add('on');
+  showGameUI();
 }
 
 function loadWasm(){var s=document.createElement('script');s.src='dolphin-emu-nogui.js';document.body.appendChild(s)}
@@ -356,8 +395,7 @@ var Module={
       writeGfxConfig();
       Module.callMain(['-e',p,'-p','headless','-u','/dolphin-data/User']);
       window._emuReady=true;
-      document.getElementById('loader').classList.add('out');
-      if(window.innerWidth<=768)document.getElementById('osc').classList.add('on');
+      showGameUI();
     }
   },
   noInitialRun:true,
