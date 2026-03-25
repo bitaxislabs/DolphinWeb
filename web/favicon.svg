@@ -1,0 +1,19 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Clean dark background -->
+  <rect width="32" height="32" rx="7" fill="#1a1a1a"/>
+
+  <!-- 3D axis rotated 45° in Y - isometric style -->
+  <g transform="translate(16, 16)">
+    <!-- Z axis (vertical) -->
+    <line x1="0" y1="0" x2="0" y2="-10" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- X axis (going back-right in 3D perspective) -->
+    <line x1="0" y1="0" x2="8" y2="5" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Y axis (going back-left in 3D perspective) -->
+    <line x1="0" y1="0" x2="-8" y2="5" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Center origin point -->
+    <circle cx="0" cy="0" r="2.5" fill="#fff"/>
+  </g>
+</svg>

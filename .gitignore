@@ -1,0 +1,34 @@
+# ROMs
+*.iso
+*.gcm
+*.rvz
+*.gcz
+*.wbfs
+*.wad
+*.dol
+*.elf
+*.nkit.*
+web/rom/
+
+# Build artifacts (dolphin source build)
+dolphin/build-wasm/
+
+# Emscripten SDK
+emsdk/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Certs
+*.pem
+*.key
+
+# Node
+node_modules/
+package-lock.json
+
+# Editor
+.vscode/
+.idea/
+*.swp
