@@ -85,7 +85,7 @@ button,select{font-family:var(--f);cursor:pointer}
 .drop-h{font-size:12px;color:var(--muted)}
 
 /* Options */
-.opts{width:100%;margin-top:20px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.opts{width:100%;margin-top:16px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1) both}
 .opt{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border)}
 .opt:last-child{border-bottom:none}
 .opt-l{font-size:13px;font-weight:500;color:var(--dim)}
@@ -172,6 +172,7 @@ button,select{font-family:var(--f);cursor:pointer}
       <span class="nav-name">Dolphin for Web</span>
     </div>
     <div class="nav-r">
+      <button class="p p-g" id="ctrlBtnNav" style="display:none" onclick="connectCtrl()">Controller</button>
       <button class="p p-g" id="menuBtn" style="display:none" onclick="exitToMenu()">Menu</button>
     </div>
   </nav>
@@ -290,6 +291,7 @@ function exitToMenu(){
 
 function showGameUI(){
   document.getElementById('menuBtn').style.display='';
+  if(navigator.bluetooth)document.getElementById('ctrlBtnNav').style.display='';
   document.getElementById('splash').classList.add('out');
   document.getElementById('loader').classList.add('out');
   if(window.innerWidth<=768)document.getElementById('osc').classList.add('on');
@@ -374,7 +376,13 @@ async function connectCtrl(){
       var s=controllerState,port=(c.playerNumber||1)-1;
       Module._dolphin_set_controller_state(port,s.buttons>>>0,s.calLeftX||0,s.calLeftY||0,s.calRightX||0,s.calRightY||0,s.calTriggerL||0,s.calTriggerR||0);
     };
-    bleManager.onControllerAdded=function(c){log('Ready: '+c.name+' (P'+c.playerNumber+')');document.getElementById('ctrlBtn').textContent=c.name;document.getElementById('ctrlBtn').classList.add('p-ok')};
+    bleManager.onControllerAdded=function(c){
+      log('Ready: '+c.name+' (P'+c.playerNumber+')');
+      var splash=document.getElementById('ctrlBtn');
+      if(splash){splash.querySelector('span').textContent=c.name}
+      var nav=document.getElementById('ctrlBtnNav');
+      if(nav){nav.textContent=c.name;nav.classList.add('p-ok')}
+    };
   }
   await bleManager.scan();
 }
@@ -430,9 +438,10 @@ var Module={
 })();
 </script>
 <script>
-// Hide controller button and limit to 1 player if no Web Bluetooth
+// Hide controller buttons if no Web Bluetooth
 if(!navigator.bluetooth){
   document.getElementById('ctrlBtn').style.display='none';
+  document.getElementById('ctrlBtnNav').style.display='none !important';
 }
 
 // On-screen touch controls
