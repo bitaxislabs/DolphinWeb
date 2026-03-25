@@ -34,8 +34,8 @@ button,select{font-family:var(--f);cursor:pointer}
 .float-menu:hover{background:rgba(0,0,0,0.8);color:var(--text)}
 
 /* ---- Stage ---- */
-.stage{flex:1;position:relative;overflow:hidden;background:#000;display:flex;align-items:flex-start;justify-content:center}
-.stage.playing{align-items:flex-start;padding-top:4px}
+.stage{flex:1;position:relative;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+.stage.playing{align-items:flex-start;padding-top:8px}
 #canvas{image-rendering:pixelated;image-rendering:crisp-edges;transition:width 0.3s,height 0.3s;object-fit:contain}
 .stage.wide #canvas{aspect-ratio:16/9;max-width:100%;max-height:100%;width:auto;height:auto}
 .stage.classic #canvas{aspect-ratio:4/3;max-width:100%;max-height:100%;width:auto;height:auto}
@@ -115,35 +115,35 @@ button,select{font-family:var(--f);cursor:pointer}
 .vstick-label{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:600;color:rgba(255,255,255,0.15);text-transform:uppercase;letter-spacing:0.5px;pointer-events:none}
 
 /* Main stick (left, upper area) */
-.osc-lstick{bottom:100px;left:16px;width:100px;height:100px}
+.osc-lstick{bottom:110px;left:24px;width:120px;height:120px}
 /* C-stick (right, below face buttons, symmetric with dpad) */
-.osc-cstick{bottom:14px;right:70px;width:65px;height:65px}
+.osc-cstick{bottom:16px;right:60px;width:75px;height:75px}
 .osc-cstick .vstick-knob{background:rgba(251,191,36,0.12);border-color:rgba(251,191,36,0.2)}
 .vstick-label{display:none}
 
 /* D-pad (bottom left) */
-.osc-dpad{position:absolute;bottom:14px;left:70px;width:80px;height:80px;pointer-events:auto;touch-action:none}
-.osc-d{position:absolute;width:26px;height:26px;border-radius:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,0.15);touch-action:none}
+.osc-dpad{position:absolute;bottom:16px;left:50px;width:90px;height:90px;pointer-events:auto;touch-action:none}
+.osc-d{position:absolute;width:30px;height:30px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,0.15);touch-action:none}
 .osc-d:active{background:rgba(255,255,255,0.12)}
-.osc-d.u{top:0;left:27px}.osc-d.d{bottom:0;left:27px}.osc-d.l{top:27px;left:0}.osc-d.r{top:27px;right:0}
+.osc-d.u{top:0;left:30px}.osc-d.d{bottom:0;left:30px}.osc-d.l{top:30px;left:0}.osc-d.r{top:30px;right:0}
 
 /* Face buttons (GC layout: big A center, B left, X right, Y top) */
-.osc-face{position:absolute;bottom:90px;right:16px;width:110px;height:95px;pointer-events:auto;touch-action:none}
+.osc-face{position:absolute;bottom:100px;right:20px;width:130px;height:110px;pointer-events:auto;touch-action:none}
 .osc-btn{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;touch-action:none;transition:filter 0.06s}
 .osc-btn:active{filter:brightness(2)}
 /* A - big green center */
-.osc-btn.a{width:48px;height:48px;bottom:16px;left:31px;font-size:14px;background:rgba(52,211,153,0.1);border:1.5px solid rgba(52,211,153,0.25);color:rgba(52,211,153,0.5)}
+.osc-btn.a{width:56px;height:56px;bottom:14px;left:37px;font-size:16px;background:rgba(52,211,153,0.1);border:1.5px solid rgba(52,211,153,0.25);color:rgba(52,211,153,0.5)}
 /* B - small red left */
-.osc-btn.b{width:30px;height:30px;bottom:4px;left:0;font-size:10px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:rgba(248,113,113,0.45)}
+.osc-btn.b{width:36px;height:36px;bottom:2px;left:0;font-size:12px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:rgba(248,113,113,0.45)}
 /* X - right of A */
-.osc-btn.x{width:30px;height:30px;bottom:28px;right:0;font-size:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
+.osc-btn.x{width:36px;height:36px;bottom:30px;right:0;font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
 /* Y - top of A */
-.osc-btn.y{width:30px;height:30px;top:0;left:38px;font-size:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
+.osc-btn.y{width:36px;height:36px;top:0;left:47px;font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
 
-/* Triggers */
-.osc-triggers{position:absolute;top:8px;left:0;right:0;display:flex;justify-content:space-between;padding:0 12px;pointer-events:auto}
-.osc-trig{font-size:10px;font-weight:700;color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:6px;padding:6px 18px;touch-action:none}
-.osc-trig:active{background:rgba(255,255,255,0.1)}
+/* Triggers - near the controls, not at top */
+.osc-triggers{position:absolute;bottom:210px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;pointer-events:auto}
+.osc-trig{font-size:11px;font-weight:700;color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 28px;touch-action:none}
+.osc-trig:active{background:rgba(255,255,255,0.12)}
 .osc-trig.z{background:rgba(99,91,255,0.06);border-color:rgba(99,91,255,0.12);color:rgba(99,91,255,0.3)}
 
 /* Start */
@@ -161,7 +161,7 @@ button,select{font-family:var(--f);cursor:pointer}
   .con-t,.con-p{display:none}
   .osc.on{display:block}
   .s-h{font-size:30px}
-  .stage.playing #canvas{max-height:45vh}
+  .stage.playing #canvas{max-height:38vh}
 }
 @media(min-width:769px){.osc{display:none!important}}
 
