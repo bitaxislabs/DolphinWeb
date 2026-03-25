@@ -423,6 +423,8 @@ async function connectCtrl(){
 
 var Module={
   canvas:document.getElementById('canvas'),
+  doNotCaptureKeyboard:true,
+  requestFullscreen:function(){return false},
   print:log,
   printErr:function(t){log('[err] '+t)},
   onRuntimeInitialized:function(){
