@@ -110,53 +110,57 @@ button,select{font-family:var(--f);cursor:pointer}
 
 /* Virtual stick */
 .vstick{position:absolute;pointer-events:auto;touch-action:none}
-.vstick-base{width:100%;height:100%;border-radius:50%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)}
-.vstick-knob{position:absolute;width:40%;height:40%;border-radius:50%;background:transparent;border:1.5px solid rgba(255,255,255,0.12);top:30%;left:30%;transition:none;pointer-events:none}
-.vstick-knob::before{content:'';position:absolute;top:15%;left:15%;width:70%;height:70%;border-radius:50%;border:1px solid rgba(255,255,255,0.08)}
-.vstick-knob::after{content:'';position:absolute;top:30%;left:30%;width:40%;height:40%;border-radius:50%;border:1px solid rgba(255,255,255,0.06)}
+.vstick-base{width:100%;height:100%;border-radius:50%;background:rgba(255,255,255,0.03);border:none}
+.vstick-knob{position:absolute;width:40%;height:40%;border-radius:50%;background:rgba(255,255,255,0.08);border:none;top:30%;left:30%;transition:none;pointer-events:none}
+.vstick-knob::before{content:'';position:absolute;top:15%;left:15%;width:70%;height:70%;border-radius:50%;border:1px solid rgba(255,255,255,0.06)}
+.vstick-knob::after{content:'';position:absolute;top:30%;left:30%;width:40%;height:40%;border-radius:50%;border:1px solid rgba(255,255,255,0.04)}
 .vstick-label{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:600;color:rgba(255,255,255,0.15);text-transform:uppercase;letter-spacing:0.5px;pointer-events:none}
 
 /* Main stick (left, upper area) */
 .osc-lstick{bottom:120px;left:14px;width:120px;height:120px}
 /* C-stick (right, below face buttons, symmetric with dpad) */
 .osc-cstick{bottom:16px;right:60px;width:75px;height:75px}
-.osc-cstick .vstick-knob{background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.2);box-shadow:none}
+.osc-cstick .vstick-knob{background:rgba(251,191,36,0.1);border:none;box-shadow:none}
 .osc-cstick .vstick-knob::before,.osc-cstick .vstick-knob::after{display:none}
 .vstick-label{display:none}
 
 /* D-pad (bottom left) */
-.osc-dpad{position:absolute;bottom:16px;left:50px;width:90px;height:90px;pointer-events:auto;touch-action:none}
-.osc-d{position:absolute;width:30px;height:30px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,0.15);touch-action:none}
-.osc-d:active{background:rgba(255,255,255,0.12)}
-.osc-d.u{top:0;left:30px}.osc-d.d{bottom:0;left:30px}.osc-d.l{top:30px;left:0}.osc-d.r{top:30px;right:0}
+.osc-dpad{position:absolute;bottom:16px;left:50px;width:84px;height:84px;pointer-events:auto;touch-action:none}
+/* Cross shape via clip-path on a single element */
+.osc-dpad::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.05);border-radius:3px;clip-path:polygon(33% 0%, 67% 0%, 67% 33%, 100% 33%, 100% 67%, 67% 67%, 67% 100%, 33% 100%, 33% 67%, 0% 67%, 0% 33%, 33% 33%)}
+.osc-dpad::after{display:none}
+.osc-d{position:absolute;width:28px;height:28px;border-radius:0;background:transparent;border:none;display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,0.15);touch-action:none;z-index:1}
+.osc-d:active{background:rgba(255,255,255,0.1);border-radius:4px}
+.osc-d.u{top:0;left:28px}.osc-d.d{bottom:0;left:28px}.osc-d.l{top:28px;left:0}.osc-d.r{top:28px;right:0}
 
 /* Face buttons (GC layout: big A center, B left, X right, Y top) */
 .osc-face{position:absolute;bottom:130px;right:20px;width:130px;height:110px;pointer-events:auto;touch-action:none}
 .osc-btn{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;touch-action:none;transition:filter 0.06s}
 .osc-btn:active{filter:brightness(2)}
 /* A - big green center */
-.osc-btn.a{width:56px;height:56px;bottom:14px;left:37px;font-size:16px;background:rgba(52,211,153,0.1);border:1.5px solid rgba(52,211,153,0.25);color:rgba(52,211,153,0.5)}
+.osc-btn.a{width:56px;height:56px;bottom:14px;left:37px;font-size:16px;background:rgba(52,211,153,0.12);border:none;color:rgba(52,211,153,0.5)}
 /* B - small red left */
-.osc-btn.b{width:36px;height:36px;bottom:2px;left:0;font-size:12px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:rgba(248,113,113,0.45)}
+.osc-btn.b{width:36px;height:36px;bottom:-1px;left:-2px;font-size:12px;background:rgba(248,113,113,0.1);border:none;color:rgba(248,113,113,0.45)}
 /* X - tall bean shape from actual GC reference */
-.osc-btn.x{width:28px;height:48px;bottom:16px;right:0;font-size:10px;border-radius:0;border:none;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.3);-webkit-mask-image:url(btn-x.png);mask-image:url(btn-x.png);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center}
-/* Y - wide bean shape from actual GC reference */
-.osc-btn.y{width:48px;height:28px;top:4px;left:30px;font-size:10px;border-radius:0;border:none;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.3);-webkit-mask-image:url(btn-y.png);mask-image:url(btn-y.png);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center}
+/* X - tall bean from GC reference */
+.osc-btn.x{width:34px;height:56px;bottom:24px;right:0;font-size:10px;border-radius:0;border:none;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);-webkit-mask-image:url(btn-x.png);mask-image:url(btn-x.png);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;filter:drop-shadow(0 0 0.5px rgba(255,255,255,0.15))}
+/* Y - wide bean from GC reference */
+.osc-btn.y{width:56px;height:34px;top:4px;left:28px;font-size:10px;border-radius:0;border:none;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);-webkit-mask-image:url(btn-y.png);mask-image:url(btn-y.png);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;filter:drop-shadow(0 0 0.5px rgba(255,255,255,0.15))}
 
 /* Triggers - near the controls, not at top */
 /* L and R at top of control area */
 .osc-triggers{position:absolute;bottom:258px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;pointer-events:auto}
-.osc-trig{font-size:11px;font-weight:700;color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 28px;touch-action:none}
+.osc-trig{font-size:11px;font-weight:700;color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.04);border:none;border-radius:8px;padding:8px 28px;touch-action:none}
 .osc-trig:active{background:rgba(255,255,255,0.12)}
 .osc-trig.z{display:none}
 /* Z button sits below R */
 .osc-zbtn{position:absolute;bottom:240px;left:50%;transform:translateX(-50%);pointer-events:auto}
-.osc-zbtn div{font-size:10px;font-weight:700;background:rgba(99,91,255,0.06);border:1px solid rgba(99,91,255,0.12);color:rgba(99,91,255,0.3);border-radius:8px;padding:6px 22px;touch-action:none}
-.osc-zbtn div:active{background:rgba(99,91,255,0.15)}
+.osc-zbtn div{font-size:10px;font-weight:700;background:rgba(99,91,255,0.08);border:none;color:rgba(99,91,255,0.35);border-radius:8px;padding:6px 22px;touch-action:none}
+.osc-zbtn div:active{background:rgba(99,91,255,0.18)}
 
 /* Start */
 .osc-start{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);pointer-events:auto}
-.osc-start div{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);touch-action:none}
+.osc-start div{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);border:none;touch-action:none}
 .osc-start div:active{background:rgba(255,255,255,0.12)}
 
 /* ---- Console ---- */
