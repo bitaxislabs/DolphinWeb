@@ -219,15 +219,6 @@ button,select{font-family:var(--f);cursor:pointer}
             </select>
           </div>
           <div class="opt">
-            <span class="opt-l">Controllers</span>
-            <select class="opt-v" id="optPorts">
-              <option value="1" selected>1 Player</option>
-              <option value="2">2 Players</option>
-              <option value="3">3 Players</option>
-              <option value="4">4 Players</option>
-            </select>
-          </div>
-          <div class="opt">
             <span class="opt-l">Skip Idle</span>
             <select class="opt-v" id="optIdle">
               <option value="1" selected>On</option>
@@ -411,9 +402,6 @@ var Module={
 // Hide controller button and limit to 1 player if no Web Bluetooth
 if(!navigator.bluetooth){
   document.getElementById('ctrlBtn').style.display='none';
-  var ps=document.getElementById('optPorts');
-  ps.innerHTML='<option value="1" selected>1 Player</option>';
-  ps.disabled=true;
 }
 
 // On-screen touch controls
