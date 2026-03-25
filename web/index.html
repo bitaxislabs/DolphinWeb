@@ -29,16 +29,20 @@ button,select{font-family:var(--f);cursor:pointer}
   background:rgba(0,0,0,0.6);color:var(--dim);
   border:1px solid var(--border);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  cursor:pointer;transition:all 0.15s;
+  cursor:pointer;transition:opacity 0.3s;
+  opacity:0;pointer-events:none;
 }
+.float-menu.visible{opacity:1;pointer-events:auto}
 .float-menu:hover{background:rgba(0,0,0,0.8);color:var(--text)}
 
 /* ---- Stage ---- */
 .stage{flex:1;position:relative;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
 .stage.playing{align-items:flex-start;padding-top:65px}
-#canvas{image-rendering:pixelated;image-rendering:crisp-edges;transition:width 0.3s,height 0.3s;object-fit:contain}
-.stage.wide #canvas{aspect-ratio:16/9;max-width:100%;max-height:100%;width:auto;height:auto}
-.stage.classic #canvas{aspect-ratio:4/3;max-width:100%;max-height:100%;width:auto;height:auto}
+#canvas{image-rendering:pixelated;image-rendering:crisp-edges;max-width:100%;max-height:100%}
+.game-fade{opacity:0;transition:opacity 0.5s}
+.game-fade.visible{opacity:1}
+.stage.wide #canvas{aspect-ratio:16/9;width:100%}
+.stage.classic #canvas{aspect-ratio:4/3;height:100%}
 
 /* ---- Splash ---- */
 .splash{position:absolute;inset:0;z-index:10;display:flex;align-items:flex-start;justify-content:center;background:var(--bg);transition:opacity 0.5s;opacity:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:40px 0 40px}
@@ -166,13 +170,13 @@ button,select{font-family:var(--f);cursor:pointer}
 .osc-start div:active{background:rgba(255,255,255,0.12)}
 
 /* ---- Console ---- */
-.con-t{flex-shrink:0;width:100%;padding:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));text-align:center;font-size:11px;font-weight:600;color:var(--dim);background:var(--s1);border:none;border-top:1px solid var(--border);font-family:var(--f);z-index:60;position:relative}
-.con-p{max-height:0;overflow:hidden;background:rgba(0,0,0,0.9);transition:max-height 0.2s;flex-shrink:0;z-index:60;position:relative}
-.con-p.open{max-height:120px}
-.con-e{padding:6px 10px;max-height:110px;overflow-y:auto;font-family:var(--mono);font-size:10px;line-height:1.5;color:var(--muted);white-space:pre-wrap}
+.con-t{display:none}
+.con-p{max-height:0;overflow:hidden;background:rgba(0,0,0,0.85);transition:max-height 0.3s;flex-shrink:0;z-index:60;position:relative;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.con-p.open{max-height:180px}
+.con-e{padding:8px 12px;max-height:170px;overflow-y:auto;font-family:var(--mono);font-size:10px;line-height:1.5;color:var(--muted);white-space:pre-wrap}
 
 @media(max-width:768px){
-  .con-t,.con-p{display:none}
+  .con-p{display:none}
   .osc.on{display:block}
   .s-h{font-size:30px}
   .stage.playing #canvas{max-height:38vh}
@@ -214,7 +218,7 @@ button,select{font-family:var(--f);cursor:pointer}
 
         <div class="drop" id="dz" onclick="document.getElementById('rf').click()">
           <div class="drop-i"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
-          <div class="drop-t">Select or drop a ROM</div>
+          <div class="drop-t">Select or drop a game</div>
           <div class="drop-h">.iso .gcm .rvz .gcz .wbfs .wad</div>
         </div>
         <input type="file" id="rf" accept=".iso,.gcm,.rvz,.gcz,.wbfs,.wad,.dol,.elf" style="display:none" onchange="handleROM(this.files[0])">
@@ -305,6 +309,15 @@ button,select{font-family:var(--f);cursor:pointer}
 <script>
 let co=false,aspect='classic';
 function toggleCon(){co=!co;document.getElementById('cp').classList.toggle('open',co)}
+document.addEventListener('keydown',function(e){if(e.key==='l'||e.key==='L'){e.preventDefault();toggleCon()}});
+(function(){
+  var mt,btn=document.getElementById('menuBtn');
+  document.addEventListener('mousemove',function(){
+    btn.classList.add('visible');
+    clearTimeout(mt);
+    mt=setTimeout(function(){btn.classList.remove('visible')},2500);
+  });
+})();
 function log(m){const e=document.getElementById('ce');e.textContent+=m+'\n';e.scrollTop=e.scrollHeight}
 
 function setAspect(v){
@@ -320,13 +333,16 @@ function toggleSettings(){
 }
 
 function exitToMenu(){
-  window.location.reload();
+  document.getElementById('stage').classList.remove('visible');
+  document.getElementById('menuBtn').classList.remove('visible');
+  setTimeout(function(){window.location.reload()},500);
 }
 
 function showGameUI(){
   document.getElementById('menuBtn').style.display='';
   document.getElementById('splash').classList.add('out');
-  document.getElementById('loader').classList.add('out');
+  document.getElementById('stage').classList.add('game-fade');
+  setTimeout(function(){document.getElementById('stage').classList.add('visible')},50);
   if(window.innerWidth<=768){
     document.getElementById('osc').classList.add('on');
     document.getElementById('stage').classList.add('playing');
@@ -352,44 +368,90 @@ document.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('ove
 
 function handleROM(file){
   if(!file)return;
-  // If emulator already running, reload page with the new ROM
   if(window._emuReady){
-    // Store ROM in sessionStorage and reload
-    var reader=new FileReader();
-    reader.onload=function(e){
-      // Can't store large files in sessionStorage, use IndexedDB
-      var req=indexedDB.open('dolphin_rom',1);
-      req.onupgradeneeded=function(ev){ev.target.result.createObjectStore('roms')};
-      req.onsuccess=function(ev){
-        var db=ev.target.result;
-        var tx=db.transaction('roms','readwrite');
-        tx.objectStore('roms').put({data:new Uint8Array(e.target.result),name:file.name},'pending');
-        tx.oncomplete=function(){window.location.reload()};
-      };
-    };
-    reader.readAsArrayBuffer(file);
+    window.location.reload();
     return;
   }
-  log('Loading: '+file.name+' ('+(file.size/1048576).toFixed(1)+'MB)');
+
+  var sizeMB=(file.size/1048576).toFixed(1);
+  log('Loading: '+file.name+' ('+sizeMB+'MB)');
   document.getElementById('splash').classList.add('out');
-  document.getElementById('loader').classList.remove('out');
-  document.getElementById('lText').textContent='Reading '+file.name+'...';
-  document.getElementById('lFill').style.width='0%';
-  const r=new FileReader();
-  r.onprogress=e=>{if(e.lengthComputable){var p=Math.round(e.loaded/e.total*100);document.getElementById('lFill').style.width=p+'%';document.getElementById('lText').textContent='Reading... '+p+'%'}};
-  r.onload=e=>{
-    const d=new Uint8Array(e.target.result);
-    log('ROM: '+d.length+' bytes');
-    document.getElementById('lFill').style.width='100%';
-    document.getElementById('lText').textContent='Starting emulator...';
-    if(typeof FS!=='undefined'){try{FS.mkdir('/rom')}catch(x){}var p='/rom/game.'+file.name.split('.').pop();FS.writeFile(p,d);log('Written to VFS');bootEmu(p)}
-    else{window._rom={d:d,ext:file.name.split('.').pop()};loadWasm()}
+
+  // All files use lazy mount (zero-copy, instant)
+  window._romFile=file;
+  if(typeof FS!=='undefined'){
+    mountAndBoot(file);
+  } else {
+    loadWasm();
+  }
+}
+
+function mountAndBoot(file){
+  try{FS.mkdir('/rom')}catch(x){}
+  var ext=file.name.split('.').pop();
+  var romPath='/rom/game.'+ext;
+  var sizeMB=Math.round(file.size/1048576);
+
+  // Zero-copy lazy file: ROM stays in browser File object,
+  // never copied into WASM heap. FS read calls are proxied to
+  // the main thread by Emscripten, so we can read from File directly.
+  log('Mounting lazy ROM: '+file.name+' ('+sizeMB+' MB, zero-copy)');
+
+  // Create a MEMFS file node with custom stream_ops
+  FS.writeFile(romPath,new Uint8Array(0));
+  var lookup=FS.lookupPath(romPath);
+  var node=lookup.node;
+  node.usedBytes=file.size;
+  node.contents=new Uint8Array(0);
+
+  var origOps=MEMFS.stream_ops;
+  var fileSize=file.size;
+
+  node.stream_ops={
+    read:function(stream,buffer,bufOffset,length,position){
+      if(length<=0||position>=fileSize)return 0;
+      if(position+length>fileSize)length=fileSize-position;
+
+      // Read from File object via sync XHR on a blob URL slice.
+      // This runs on the main thread (Emscripten proxies FS calls here).
+      var blob=file.slice(position,position+length);
+      var url=URL.createObjectURL(blob);
+      var xhr=new XMLHttpRequest();
+      xhr.open('GET',url,false);
+      xhr.responseType='arraybuffer';
+      xhr.send();
+      URL.revokeObjectURL(url);
+
+      var src=new Uint8Array(xhr.response);
+      buffer.set(src,bufOffset);
+      return src.length;
+    },
+    write:origOps.write,
+    llseek:function(stream,offset,whence){
+      var position=offset;
+      if(whence===1)position+=stream.position;
+      else if(whence===2)position+=fileSize;
+      if(position<0)throw new FS.ErrnoError(28);
+      return position;
+    },
+    allocate:origOps.allocate,
+    mmap:origOps.mmap,
+    msync:origOps.msync
   };
-  r.readAsArrayBuffer(file);
+
+  var origGetattr=node.node_ops.getattr;
+  node.node_ops=Object.assign({},node.node_ops);
+  node.node_ops.getattr=function(n){
+    var attr=origGetattr(n);
+    attr.size=fileSize;
+    return attr;
+  };
+
+  log('Lazy ROM ready: '+romPath+' ('+fileSize+' bytes, zero WASM memory)');
+  bootEmu(romPath);
 }
 
 function bootEmu(path){
-  document.getElementById('lText').textContent='Booting...';
   log('Boot: '+path);
   writeGfxConfig();
   Module.callMain(['-e',path,'-p','headless','-u','/dolphin-data/User']);
@@ -429,49 +491,14 @@ var Module={
   printErr:function(t){log('[err] '+t)},
   onRuntimeInitialized:function(){
     log('WASM runtime ready');
-    if(window._rom){
-      try{FS.mkdir('/rom')}catch(x){}
-      var p='/rom/game.'+window._rom.ext;
-      FS.writeFile(p,window._rom.d);
-      log('ROM written to VFS: '+p);
-      window._rom=null;
-      log('Calling main()...');
-      writeGfxConfig();
-      Module.callMain(['-e',p,'-p','headless','-u','/dolphin-data/User']);
-      window._emuReady=true;
-      showGameUI();
+    if(window._romFile){
+      mountAndBoot(window._romFile);
+      window._romFile=null;
     }
   },
   noInitialRun:true,
   arguments:[]
 };
-</script>
-<script>
-// Check for pending ROM from reload
-(function(){
-  var req=indexedDB.open('dolphin_rom',1);
-  req.onupgradeneeded=function(ev){ev.target.result.createObjectStore('roms')};
-  req.onsuccess=function(ev){
-    var db=ev.target.result;
-    try{
-      var tx=db.transaction('roms','readwrite');
-      var get=tx.objectStore('roms').get('pending');
-      get.onsuccess=function(){
-        if(get.result){
-          var rom=get.result;
-          tx.objectStore('roms').delete('pending');
-          log('Resuming: '+rom.name);
-          document.getElementById('splash').classList.add('out');
-          document.getElementById('loader').classList.remove('out');
-          document.getElementById('lText').textContent='Starting '+rom.name+'...';
-          document.getElementById('lFill').style.width='100%';
-          window._rom={d:rom.data,ext:rom.name.split('.').pop()};
-          loadWasm();
-        }
-      };
-    }catch(e){}
-  };
-})();
 </script>
 <script>
 // Hide controller buttons if no Web Bluetooth
