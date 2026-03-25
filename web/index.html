@@ -160,7 +160,9 @@ button,select{font-family:var(--f);cursor:pointer}
 
 /* Start */
 .osc-start{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);pointer-events:auto}
-.osc-start div{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);border:none;touch-action:none}
+.osc-start{display:flex;flex-direction:column;align-items:center;gap:4px}
+.osc-start-label{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:rgba(255,255,255,0.12);pointer-events:none}
+.osc-start div{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.05);border:none;touch-action:none}
 .osc-start div:active{background:rgba(255,255,255,0.12)}
 
 /* ---- Console ---- */
@@ -292,7 +294,7 @@ button,select{font-family:var(--f);cursor:pointer}
         <div class="osc-btn y" data-btn="y">Y</div>
       </div>
       <div class="vstick osc-cstick" id="stickR"><div class="vstick-base"></div><div class="vstick-knob" id="knobR"></div><div class="vstick-label">C-Stick</div></div>
-      <div class="osc-start"><div data-btn="start">START</div></div>
+      <div class="osc-start"><span class="osc-start-label">START/PAUSE</span><div data-btn="start"></div></div>
     </div>
   </div>
 
