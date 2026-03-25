@@ -111,7 +111,8 @@ button,select{font-family:var(--f);cursor:pointer}
 /* Virtual stick */
 .vstick{position:absolute;pointer-events:auto;touch-action:none}
 .vstick-base{width:100%;height:100%;border-radius:50%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)}
-.vstick-knob{position:absolute;width:40%;height:40%;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);top:30%;left:30%;transition:none;pointer-events:none}
+.vstick-knob{position:absolute;width:40%;height:40%;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);top:30%;left:30%;transition:none;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.03)}
+.vstick-knob::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60%;height:60%;background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08) 2px, transparent 2px),radial-gradient(circle at 70% 30%, rgba(255,255,255,0.08) 2px, transparent 2px),radial-gradient(circle at 50% 65%, rgba(255,255,255,0.08) 2px, transparent 2px);border-radius:50%}
 .vstick-label{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:600;color:rgba(255,255,255,0.15);text-transform:uppercase;letter-spacing:0.5px;pointer-events:none}
 
 /* Main stick (left, upper area) */
@@ -135,19 +136,19 @@ button,select{font-family:var(--f);cursor:pointer}
 .osc-btn.a{width:56px;height:56px;bottom:14px;left:37px;font-size:16px;background:rgba(52,211,153,0.1);border:1.5px solid rgba(52,211,153,0.25);color:rgba(52,211,153,0.5)}
 /* B - small red left */
 .osc-btn.b{width:36px;height:36px;bottom:2px;left:0;font-size:12px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:rgba(248,113,113,0.45)}
-/* X - right of A */
-.osc-btn.x{width:36px;height:36px;bottom:30px;right:0;font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
-/* Y - top of A */
-.osc-btn.y{width:36px;height:36px;top:0;left:47px;font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
+/* X - bean wrapping right side of A */
+.osc-btn.x{width:32px;height:46px;bottom:22px;right:0;font-size:11px;border-radius:16px 20px 20px 8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
+/* Y - bean wrapping top of A */
+.osc-btn.y{width:46px;height:32px;top:4px;left:32px;font-size:11px;border-radius:20px 16px 8px 20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25)}
 
 /* Triggers - near the controls, not at top */
 /* L and R at top of control area */
-.osc-triggers{position:absolute;bottom:270px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;pointer-events:auto}
+.osc-triggers{position:absolute;bottom:258px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;pointer-events:auto}
 .osc-trig{font-size:11px;font-weight:700;color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 28px;touch-action:none}
 .osc-trig:active{background:rgba(255,255,255,0.12)}
 .osc-trig.z{display:none}
 /* Z button sits below R */
-.osc-zbtn{position:absolute;bottom:230px;right:20px;pointer-events:auto}
+.osc-zbtn{position:absolute;bottom:240px;left:50%;transform:translateX(-50%);pointer-events:auto}
 .osc-zbtn div{font-size:10px;font-weight:700;background:rgba(99,91,255,0.06);border:1px solid rgba(99,91,255,0.12);color:rgba(99,91,255,0.3);border-radius:8px;padding:6px 22px;touch-action:none}
 .osc-zbtn div:active{background:rgba(99,91,255,0.15)}
 
