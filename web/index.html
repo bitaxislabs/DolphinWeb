@@ -414,17 +414,20 @@ function mountAndBoot(file){
 
       // Read from File object via sync XHR on a blob URL slice.
       // This runs on the main thread (Emscripten proxies FS calls here).
+      // Chrome forbids responseType on sync XHR, so we read as binary string.
       var blob=file.slice(position,position+length);
       var url=URL.createObjectURL(blob);
       var xhr=new XMLHttpRequest();
       xhr.open('GET',url,false);
-      xhr.responseType='arraybuffer';
+      xhr.overrideMimeType('text/plain; charset=x-user-defined');
       xhr.send();
       URL.revokeObjectURL(url);
 
-      var src=new Uint8Array(xhr.response);
-      buffer.set(src,bufOffset);
-      return src.length;
+      var text=xhr.responseText;
+      for(var i=0;i<text.length;i++){
+        buffer[bufOffset+i]=text.charCodeAt(i)&0xFF;
+      }
+      return text.length;
     },
     write:origOps.write,
     llseek:function(stream,offset,whence){
