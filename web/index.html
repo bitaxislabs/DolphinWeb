@@ -343,7 +343,7 @@ async function connectCtrl(){
   if(!bleManager){
     bleManager=new BLEManager();
     bleManager.onLog=function(m){log(m)};
-    bleManager.onStateChange=function(s){var b=document.getElementById('ctrlBtn');if(s==='connected'){b.textContent='Connected';b.classList.add('p-ok')}else if(s==='scanning'||s==='connecting'||s==='pairing')b.textContent=s.charAt(0).toUpperCase()+s.slice(1)+'...'};
+    bleManager.onStateChange=function(s){var b=document.getElementById('ctrlBtn');if(!b)return;if(s==='connected'){b.innerHTML='Connected'}else if(s==='scanning'||s==='connecting'||s==='pairing')b.innerHTML=s.charAt(0).toUpperCase()+s.slice(1)+'...'};
     bleManager.onControllerUpdate=function(c){
       controllerState=c.state;
       if(!controllerState||!window._emuReady)return;
@@ -352,8 +352,8 @@ async function connectCtrl(){
     };
     bleManager.onControllerAdded=function(c){
       log('Ready: '+c.name+' (P'+c.playerNumber+')');
-      var splash=document.getElementById('ctrlBtn');
-      if(splash){splash.querySelector('span').textContent=c.name}
+      var btn=document.getElementById('ctrlBtn');
+      if(btn)btn.innerHTML=c.name;
     };
   }
   await bleManager.scan();
