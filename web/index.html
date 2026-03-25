@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Dolphin for Web</title>
 <style>
 :root{
@@ -15,11 +15,11 @@
   --mono:'SF Mono','Fira Code',monospace;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;-webkit-font-smoothing:antialiased}
-body{font-family:var(--f);background:var(--bg);color:var(--text)}
+html,body{height:100%;height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased}
+body{font-family:var(--f);background:var(--bg);color:var(--text);touch-action:manipulation}
 ::selection{background:rgba(99,91,255,0.2)}
 button,select{font-family:var(--f);cursor:pointer}
-#app{display:flex;flex-direction:column;height:100vh}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
 
 /* ---- Nav ---- */
 .nav{display:flex;justify-content:space-between;align-items:center;height:48px;padding:0 20px;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0;z-index:50}
@@ -38,9 +38,9 @@ button,select{font-family:var(--f);cursor:pointer}
 
 /* ---- Stage ---- */
 .stage{flex:1;position:relative;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
-#canvas{image-rendering:pixelated;image-rendering:crisp-edges;transition:width 0.3s,height 0.3s}
-.stage.wide #canvas{aspect-ratio:16/9;width:100%;max-height:100%}
-.stage.classic #canvas{aspect-ratio:4/3;height:100%;max-width:100%}
+#canvas{image-rendering:pixelated;image-rendering:crisp-edges;transition:width 0.3s,height 0.3s;object-fit:contain}
+.stage.wide #canvas{aspect-ratio:16/9;max-width:100%;max-height:100%;width:auto;height:auto}
+.stage.classic #canvas{aspect-ratio:4/3;max-width:100%;max-height:100%;width:auto;height:auto}
 
 /* ---- Splash ---- */
 .splash{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:opacity 0.5s;opacity:1}
@@ -123,13 +123,40 @@ button,select{font-family:var(--f);cursor:pointer}
 .osc-m div{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:100px;padding:5px 14px;touch-action:none}
 
 /* ---- Console ---- */
-.con-t{flex-shrink:0;width:100%;padding:4px;text-align:center;font-size:10px;font-weight:500;color:var(--muted);background:var(--s1);border:none;border-top:1px solid var(--border);font-family:var(--f)}
-.con-p{max-height:0;overflow:hidden;background:rgba(0,0,0,0.9);transition:max-height 0.2s;flex-shrink:0}
+.con-t{flex-shrink:0;width:100%;padding:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));text-align:center;font-size:11px;font-weight:600;color:var(--dim);background:var(--s1);border:none;border-top:1px solid var(--border);font-family:var(--f);z-index:60;position:relative}
+.con-p{max-height:0;overflow:hidden;background:rgba(0,0,0,0.9);transition:max-height 0.2s;flex-shrink:0;z-index:60;position:relative}
 .con-p.open{max-height:120px}
 .con-e{padding:6px 10px;max-height:110px;overflow-y:auto;font-family:var(--mono);font-size:10px;line-height:1.5;color:var(--muted);white-space:pre-wrap}
 
-@media(max-width:768px){.osc.on{display:block}.nav{height:40px;padding:0 12px}.nav-name{font-size:12px}.p{font-size:10px;padding:4px 10px}.s-h{font-size:30px}}
+@media(max-width:768px){
+  .osc.on{display:block}
+  .nav{height:40px;padding:0 12px}
+  .nav-name{font-size:12px}
+  .p{font-size:10px;padding:4px 10px}
+  .s-h{font-size:30px}
+}
 @media(min-width:769px){.osc{display:none!important}}
+
+/* Landscape mobile */
+@media(max-height:500px) and (orientation:landscape){
+  .nav{height:32px;padding:0 10px}
+  .nav-name{font-size:11px}
+  .nav-icon{width:22px;height:22px;border-radius:5px}
+  .nav-icon svg{width:12px;height:12px}
+  .p{font-size:9px;padding:3px 8px}
+  .con-t{padding:3px;font-size:9px}
+  .osc.on{display:block}
+  .osc-pad{bottom:10px;left:10px;width:90px;height:90px}
+  .osc-d{width:28px;height:28px;border-radius:5px;font-size:10px}
+  .osc-d.u{left:31px}.osc-d.d{left:31px}.osc-d.l{top:31px}.osc-d.r{top:31px}
+  .osc-f{bottom:10px;right:10px;width:90px;height:90px}
+  .osc-b{width:30px;height:30px;font-size:9px}
+  .osc-b.a{left:30px}.osc-b.b{bottom:30px}.osc-b.x{bottom:30px}.osc-b.y{left:30px}
+  .osc-sh{top:4px;padding:0 8px}
+  .osc-sh div{font-size:9px;padding:4px 14px}
+  .osc-m{bottom:10px}
+  .osc-m div{font-size:8px;padding:3px 10px}
+}
 </style>
 </head>
 <body>
@@ -385,6 +412,76 @@ var Module={
       };
     }catch(e){}
   };
+})();
+</script>
+<script>
+// Hide controller button if no Web Bluetooth
+if(!navigator.bluetooth) document.getElementById('ctrlBtn').style.display='none';
+
+// On-screen touch controls
+(function(){
+  var pressed={};
+  var btnMap={
+    'u':0x02000000,'d':0x01000000,'l':0x08000000,'r':0x04000000,
+    'a':0x00000800,'b':0x00000400,'x':0x00000200,'y':0x00000100
+  };
+  function updateOSC(){
+    if(!window._emuReady)return;
+    var buttons=0;
+    for(var k in pressed)if(pressed[k])buttons|=(btnMap[k]||0);
+    // START and Z
+    if(pressed['start'])buttons|=0x00020000;
+    if(pressed['z'])buttons|=0x00008000;
+    // L and R
+    var tl=pressed['L']?255:0;
+    var tr=pressed['R']?255:0;
+    if(pressed['L'])buttons|=0x40000000;
+    if(pressed['R'])buttons|=0x00004000;
+    try{Module._dolphin_set_controller_state(0,buttons>>>0,0,0,0,0,tl,tr)}catch(e){}
+  }
+  function bind(sel,key){
+    document.querySelectorAll(sel).forEach(function(el){
+      el.addEventListener('touchstart',function(e){e.preventDefault();pressed[key]=true;updateOSC()},{passive:false});
+      el.addEventListener('touchend',function(e){e.preventDefault();pressed[key]=false;updateOSC()},{passive:false});
+      el.addEventListener('touchcancel',function(e){pressed[key]=false;updateOSC()});
+    });
+  }
+  bind('.osc-d.u','u');bind('.osc-d.d','d');bind('.osc-d.l','l');bind('.osc-d.r','r');
+  bind('.osc-b.a','a');bind('.osc-b.b','b');bind('.osc-b.x','x');bind('.osc-b.y','y');
+  // Shoulder buttons
+  document.querySelectorAll('.osc-sh div').forEach(function(el,i){
+    var key=i===0?'L':'R';
+    el.addEventListener('touchstart',function(e){e.preventDefault();pressed[key]=true;updateOSC()},{passive:false});
+    el.addEventListener('touchend',function(e){e.preventDefault();pressed[key]=false;updateOSC()},{passive:false});
+    el.addEventListener('touchcancel',function(e){pressed[key]=false;updateOSC()});
+  });
+  // START and Z
+  document.querySelectorAll('.osc-m div').forEach(function(el,i){
+    var key=i===0?'start':'z';
+    el.addEventListener('touchstart',function(e){e.preventDefault();pressed[key]=true;updateOSC()},{passive:false});
+    el.addEventListener('touchend',function(e){e.preventDefault();pressed[key]=false;updateOSC()},{passive:false});
+    el.addEventListener('touchcancel',function(e){pressed[key]=false;updateOSC()});
+  });
+})();
+
+// Global error handler to catch WASM/thread issues
+window.onerror=function(msg,src,line,col,err){log('ERROR: '+msg);return false};
+window.onunhandledrejection=function(e){log('REJECT: '+(e.reason||e))};
+
+// Check capabilities
+(function(){
+  var issues=[];
+  if(typeof SharedArrayBuffer==='undefined') issues.push('No SharedArrayBuffer');
+  if(typeof Atomics==='undefined') issues.push('No Atomics');
+  if(!window.WebAssembly) issues.push('No WebAssembly');
+  if(!window.Worker) issues.push('No Workers');
+  if(issues.length) log('COMPAT: '+issues.join(', '));
+  else log('COMPAT: SharedArrayBuffer, Atomics, WASM, Workers all OK');
+
+  // Check COOP/COEP
+  if(typeof crossOriginIsolated!=='undefined'){
+    log('COMPAT: crossOriginIsolated = '+crossOriginIsolated);
+  }
 })();
 </script>
 <script src="packet-parser.js"></script>
